@@ -27,3 +27,4 @@ Homestead.yaml
 Thumbs.db
 composer.lock
 postman_collection.json
+docker-compose.yaml
