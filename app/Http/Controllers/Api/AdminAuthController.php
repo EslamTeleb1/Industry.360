@@ -29,12 +29,18 @@ class AdminAuthController extends Controller
 
         $token = $user->createToken('admin')->plainTextToken;
 
+        // Get the first role or default to 'user'
+        $role = $user->getRoleNames()->first() ?? 'user';
+
+        // Get all permissions
+        $permissions = $user->getAllPermissions()->pluck('name')->values()->all();
+
         return $this->successResponse([
             'token' => $token,
-            'token_type' => 'Bearer',
-            'user' => $user,
-            'roles' => $user->getRoleNames(),
-            'permissions' => $user->getAllPermissions()->pluck('name')->values(),
+            'full_name' => $user->name,
+            'email' => $user->email,
+            'role' => $role,
+            'permissions' => $permissions,
         ], 'Login successful', 200);
     }
 
