@@ -21,8 +21,8 @@ trait ApiResponse
             'success' => true,
             'message' => $message,
             'data' => $this->transformData($data),
-            'meta' => $meta,
-            'timestamp' => now()->toIso8601String(),
+            // 'meta' => $meta,
+            // 'timestamp' => now()->toIso8601String(),
         ], $statusCode);
     }
 

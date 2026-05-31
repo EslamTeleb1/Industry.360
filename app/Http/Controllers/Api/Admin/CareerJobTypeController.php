@@ -11,10 +11,33 @@ use Illuminate\Http\Request;
 class CareerJobTypeController extends Controller
 {
     use ApiResponse;
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = max(1, min(100, $request->integer('per_page', 15)));
+        $sortDirection = strtolower($request->string('sort', 'asc')->toString()) === 'desc' ? 'desc' : 'asc';
+        $search = trim((string) $request->input('search', ''));
+
+        $jobTypes = CareerJobType::query()
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($searchQuery) use ($search) {
+                    $searchQuery->where('name->en', 'like', "%{$search}%")
+                        ->orWhere('name->ar', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('created_at', $sortDirection)
+            ->paginate($perPage);
+
         return $this->successResponse([
-            'job_types' => CareerJobTypeResource::collection(CareerJobType::query()->orderBy('id')->get()),
+            'job_types' => CareerJobTypeResource::collection($jobTypes->getCollection()),
+            'pagination' => [
+                'url' => $jobTypes->url($jobTypes->currentPage()),
+                'current_page' => $jobTypes->currentPage(),
+                'last_page' => $jobTypes->lastPage(),
+                'per_page' => $jobTypes->perPage(),
+                'total' => $jobTypes->total(),
+                'from' => $jobTypes->firstItem(),
+                'to' => $jobTypes->lastItem(),
+            ],
         ], 'Job types retrieved successfully');
     }
 

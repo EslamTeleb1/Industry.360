@@ -16,17 +16,44 @@ class CareerJobController extends Controller
     use ApiResponse;
     public function index(Request $request)
     {
+        $perPage = max(1, min(100, $request->integer('per_page', 15)));
+        $sortDirection = strtolower($request->string('sort', 'desc')->toString()) === 'asc' ? 'asc' : 'desc';
+        $search = trim((string) $request->input('search', ''));
+
         $jobs = CareerJob::query()
             ->with(['department', 'location', 'jobType', 'roleSections'])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($searchQuery) use ($search) {
+                    $searchQuery->where('title->en', 'like', "%{$search}%")
+                        ->orWhere('title->ar', 'like', "%{$search}%")
+                        ->orWhereHas('department', function ($departmentQuery) use ($search) {
+                            $departmentQuery->where('name->en', 'like', "%{$search}%")
+                                ->orWhere('name->ar', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('jobType', function ($jobTypeQuery) use ($search) {
+                            $jobTypeQuery->where('name->en', 'like', "%{$search}%")
+                                ->orWhere('name->ar', 'like', "%{$search}%");
+                        });
+                });
+            })
             ->when($request->filled('department_id'), fn ($q) => $q->where('department_id', $request->integer('department_id')))
             ->when($request->filled('location_id'), fn ($q) => $q->where('location_id', $request->integer('location_id')))
             ->when($request->filled('job_type_id'), fn ($q) => $q->where('job_type_id', $request->integer('job_type_id')))
-            ->when($request->filled('is_active'), fn ($q) => $q->where('is_active', (bool) $request->input('is_active')))
-            ->orderByDesc('id')
-            ->get();
+            ->when($request->filled('is_active'), fn ($q) => $q->where('is_active', $request->boolean('is_active')))
+            ->orderBy('created_at', $sortDirection)
+            ->paginate($perPage);
 
         return $this->successResponse([
-            'jobs' => CareerJobResource::collection($jobs),
+            'jobs' => CareerJobResource::collection($jobs->getCollection()),
+            'pagination' => [
+                'url' => $jobs->url($jobs->currentPage()),
+                'current_page' => $jobs->currentPage(),
+                'last_page' => $jobs->lastPage(),
+                'per_page' => $jobs->perPage(),
+                'total' => $jobs->total(),
+                'from' => $jobs->firstItem(),
+                'to' => $jobs->lastItem(),
+            ],
         ], 'Jobs retrieved successfully');
     }
 
