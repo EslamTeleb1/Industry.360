@@ -10,18 +10,20 @@ class CareerJobApplication extends Model
 {
     protected $appends = [
         'cv_url',
+        'cover_letter_url',
     ];
 
     protected $fillable = [
         'career_job_id',
         'full_name',
         'email',
+        'phone',
         'years_of_experience',
         'start_date',
         'expected_salary',
         'linkedin_profile',
         'cv_path',
-        'cover_letter',
+        'cover_letter_path',
     ];
 
     protected $casts = [
@@ -37,5 +39,10 @@ class CareerJobApplication extends Model
     public function getCvUrlAttribute(): ?string
     {
         return $this->cv_path ? Storage::disk('public')->url($this->cv_path) : null;
+    }
+
+    public function getCoverLetterUrlAttribute(): ?string
+    {
+        return $this->cover_letter_path ? Storage::disk('public')->url($this->cover_letter_path) : null;
     }
 }

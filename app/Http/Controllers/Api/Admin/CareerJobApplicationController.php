@@ -14,6 +14,8 @@ class CareerJobApplicationController extends Controller
 
     public function index(Request $request)
     {
+        $perPage = max(1, min(100, $request->integer('per_page', 20)));
+
         $query = CareerJobApplication::with(['job', 'job.department', 'job.location', 'job.jobType'])
             ->orderByDesc('id');
 
@@ -24,10 +26,19 @@ class CareerJobApplicationController extends Controller
             $query->where('email', $request->input('email'));
         }
 
-        $applications = $query->paginate(20);
+        $applications = $query->paginate($perPage);
 
         return $this->successResponse([
-            'applications' => CareerJobApplicationResource::collection($applications),
+            'applications' => CareerJobApplicationResource::collection($applications->getCollection()),
+            'pagination' => [
+                'url' => $applications->url($applications->currentPage()),
+                'current_page' => $applications->currentPage(),
+                'last_page' => $applications->lastPage(),
+                'per_page' => $applications->perPage(),
+                'total' => $applications->total(),
+                'from' => $applications->firstItem(),
+                'to' => $applications->lastItem(),
+            ],
         ], 'Applicants retrieved successfully');
     }
 }
