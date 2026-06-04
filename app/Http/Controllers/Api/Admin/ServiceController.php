@@ -67,7 +67,7 @@ class ServiceController extends Controller
     private function validateService(Request $request, bool $isCreate): array
     {
         return $request->validate([
-            'type' => ['required', 'string', 'in:service,solution'],
+            'type' => ['required', 'string', 'in:service,solution,industry'],
             'title' => ['required', 'array'],
             'title.en' => ['required', 'string'],
             'title.ar' => ['required', 'string'],

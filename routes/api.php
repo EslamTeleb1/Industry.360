@@ -26,6 +26,8 @@ Route::get('solutions/{item}', [\App\Http\Controllers\Api\Public\SolutionControl
 Route::get('industries', [\App\Http\Controllers\Api\Public\IndustryController::class, 'index']);
 Route::get('industries/{item}', [\App\Http\Controllers\Api\Public\IndustryController::class, 'show']);
 
+Route::post('contact', [\App\Http\Controllers\Api\Public\ContactController::class, 'store']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('admin/logout', [AdminAuthController::class, 'logout']);
     Route::get('admin/me', [AdminAuthController::class, 'me']);
@@ -58,6 +60,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // List all applicants for admin
     Route::get('admin/careers/applications', [\App\Http\Controllers\Api\Admin\CareerJobApplicationController::class, 'index']);
+
+    Route::get('admin/contact-messages', [\App\Http\Controllers\Api\Admin\ContactMessageController::class, 'index']);
+    Route::get('admin/contact-messages/{contactMessage}', [\App\Http\Controllers\Api\Admin\ContactMessageController::class, 'show']);
 
     Route::get('admin/careers/page', [CareerPageController::class, 'show']);
     Route::post('admin/careers/page', [CareerPageController::class, 'update']);
