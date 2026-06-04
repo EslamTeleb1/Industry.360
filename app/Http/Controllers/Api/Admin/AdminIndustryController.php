@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ServiceResource;
 use App\Models\Service;
 use App\Traits\ApiResponse;
+use App\Traits\DateFilterable;
 use App\Traits\IndustryModuleHandler;
 use Illuminate\Http\Request;
 
 class AdminIndustryController extends Controller
 {
-    use ApiResponse, IndustryModuleHandler;
+    use ApiResponse, IndustryModuleHandler, DateFilterable;
 
     protected function getModuleType(): string
     {
@@ -31,8 +32,12 @@ class AdminIndustryController extends Controller
                     ->orWhere('description->en', 'like', "%{$search}%")
                     ->orWhere('description->ar', 'like', "%{$search}%");
             })
-            ->orderBy('created_at', $sortDirection)
-            ->paginate($perPage);
+            ->orderBy('created_at', $sortDirection);
+
+        // Date filter
+        $this->applyDateFilter($items, $request->input('date_filter'));
+
+        $items = $items->paginate($perPage);
 
         return $this->successResponse([
             'items' => ServiceResource::collection($items->getCollection()),

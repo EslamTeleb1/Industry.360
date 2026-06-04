@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\CareerJobTypeResource;
 use App\Models\CareerJobType;
 use App\Traits\ApiResponse;
+use App\Traits\DateFilterable;
 use Illuminate\Http\Request;
 
 class CareerJobTypeController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, DateFilterable;
     public function index(Request $request)
     {
         $perPage = max(1, min(100, $request->integer('per_page', 15)));
@@ -24,8 +25,12 @@ class CareerJobTypeController extends Controller
                         ->orWhere('name->ar', 'like', "%{$search}%");
                 });
             })
-            ->orderBy('created_at', $sortDirection)
-            ->paginate($perPage);
+            ->orderBy('created_at', $sortDirection);
+
+        // Date filter
+        $this->applyDateFilter($jobTypes, $request->input('date_filter'));
+
+        $jobTypes = $jobTypes->paginate($perPage);
 
         return $this->successResponse([
             'job_types' => CareerJobTypeResource::collection($jobTypes->getCollection()),

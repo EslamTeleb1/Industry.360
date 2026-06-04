@@ -39,23 +39,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('admin/careers/departments', [CareerDepartmentController::class, 'index']);
     Route::post('admin/careers/departments', [CareerDepartmentController::class, 'store']);
-    Route::put('admin/careers/departments/{department}', [CareerDepartmentController::class, 'update']);
+    Route::post('admin/careers/departments/{department}', [CareerDepartmentController::class, 'update']);
     Route::delete('admin/careers/departments/{department}', [CareerDepartmentController::class, 'destroy']);
 
     Route::get('admin/careers/locations', [CareerLocationController::class, 'index']);
     Route::post('admin/careers/locations', [CareerLocationController::class, 'store']);
-    Route::put('admin/careers/locations/{location}', [CareerLocationController::class, 'update']);
+    Route::post('admin/careers/locations/{location}', [CareerLocationController::class, 'update']);
     Route::delete('admin/careers/locations/{location}', [CareerLocationController::class, 'destroy']);
 
     Route::get('admin/careers/job-types', [CareerJobTypeController::class, 'index']);
     Route::post('admin/careers/job-types', [CareerJobTypeController::class, 'store']);
-    Route::put('admin/careers/job-types/{jobType}', [CareerJobTypeController::class, 'update']);
+    Route::post('admin/careers/job-types/{jobType}', [CareerJobTypeController::class, 'update']);
     Route::delete('admin/careers/job-types/{jobType}', [CareerJobTypeController::class, 'destroy']);
 
     Route::get('admin/careers/jobs', [CareerJobController::class, 'index']);
     Route::post('admin/careers/jobs', [CareerJobController::class, 'store']);
     Route::get('admin/careers/jobs/{job}', [CareerJobController::class, 'show']);
-    Route::put('admin/careers/jobs/{job}', [CareerJobController::class, 'update']);
+    Route::post('admin/careers/jobs/{job}', [CareerJobController::class, 'update']);
     Route::delete('admin/careers/jobs/{job}', [CareerJobController::class, 'destroy']);
 
     // List all applicants for admin
@@ -70,18 +70,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('admin/services', [\App\Http\Controllers\Api\Admin\AdminServiceController::class, 'index']);
     Route::post('admin/services', [\App\Http\Controllers\Api\Admin\AdminServiceController::class, 'store']);
     Route::get('admin/services/{item}', [\App\Http\Controllers\Api\Admin\AdminServiceController::class, 'show']);
-    Route::put('admin/services/{item}', [\App\Http\Controllers\Api\Admin\AdminServiceController::class, 'update']);
+    Route::post('admin/services/{item}', [\App\Http\Controllers\Api\Admin\AdminServiceController::class, 'update']);
     Route::delete('admin/services/{item}', [\App\Http\Controllers\Api\Admin\AdminServiceController::class, 'destroy']);
 
     Route::get('admin/solutions', [\App\Http\Controllers\Api\Admin\AdminSolutionController::class, 'index']);
     Route::post('admin/solutions', [\App\Http\Controllers\Api\Admin\AdminSolutionController::class, 'store']);
     Route::get('admin/solutions/{item}', [\App\Http\Controllers\Api\Admin\AdminSolutionController::class, 'show']);
-    Route::put('admin/solutions/{item}', [\App\Http\Controllers\Api\Admin\AdminSolutionController::class, 'update']);
+    Route::post('admin/solutions/{item}', [\App\Http\Controllers\Api\Admin\AdminSolutionController::class, 'update']);
     Route::delete('admin/solutions/{item}', [\App\Http\Controllers\Api\Admin\AdminSolutionController::class, 'destroy']);
 
     Route::get('admin/industries', [\App\Http\Controllers\Api\Admin\AdminIndustryController::class, 'index']);
     Route::post('admin/industries', [\App\Http\Controllers\Api\Admin\AdminIndustryController::class, 'store']);
     Route::get('admin/industries/{item}', [\App\Http\Controllers\Api\Admin\AdminIndustryController::class, 'show']);
-    Route::put('admin/industries/{item}', [\App\Http\Controllers\Api\Admin\AdminIndustryController::class, 'update']);
+    Route::post('admin/industries/{item}', [\App\Http\Controllers\Api\Admin\AdminIndustryController::class, 'update']);
     Route::delete('admin/industries/{item}', [\App\Http\Controllers\Api\Admin\AdminIndustryController::class, 'destroy']);
 });

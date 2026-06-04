@@ -7,13 +7,14 @@ use App\Http\Resources\CareerJobResource;
 use App\Models\CareerJob;
 use App\Models\CareerJobRoleSection;
 use App\Traits\ApiResponse;
+use App\Traits\DateFilterable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class CareerJobController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, DateFilterable;
     public function index(Request $request)
     {
         $perPage = max(1, min(100, $request->integer('per_page', 15)));
@@ -40,8 +41,12 @@ class CareerJobController extends Controller
             ->when($request->filled('location_id'), fn ($q) => $q->where('location_id', $request->integer('location_id')))
             ->when($request->filled('job_type_id'), fn ($q) => $q->where('job_type_id', $request->integer('job_type_id')))
             ->when($request->filled('is_active'), fn ($q) => $q->where('is_active', $request->boolean('is_active')))
-            ->orderBy('created_at', $sortDirection)
-            ->paginate($perPage);
+            ->orderBy('created_at', $sortDirection);
+
+        // Date filter
+        $this->applyDateFilter($jobs, $request->input('date_filter'));
+
+        $jobs = $jobs->paginate($perPage);
 
         return $this->successResponse([
             'jobs' => CareerJobResource::collection($jobs->getCollection()),

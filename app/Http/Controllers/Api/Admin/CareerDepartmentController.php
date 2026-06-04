@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\CareerDepartmentResource;
 use App\Models\CareerDepartment;
 use App\Traits\ApiResponse;
+use App\Traits\DateFilterable;
 use Illuminate\Http\Request;
 
 class CareerDepartmentController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, DateFilterable;
     public function index(Request $request)
     {
         $perPage = max(1, min(100, $request->integer('per_page', 15)));
@@ -24,8 +25,12 @@ class CareerDepartmentController extends Controller
                         ->orWhere('name->ar', 'like', "%{$search}%");
                 });
             })
-            ->orderBy('created_at', $sortDirection)
-            ->paginate($perPage);
+            ->orderBy('created_at', $sortDirection);
+
+        // Date filter
+        $this->applyDateFilter($departments, $request->input('date_filter'));
+
+        $departments = $departments->paginate($perPage);
 
         return $this->successResponse([
             'departments' => CareerDepartmentResource::collection($departments->getCollection()),
