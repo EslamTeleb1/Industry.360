@@ -28,6 +28,10 @@ Route::get('industries/{item}', [\App\Http\Controllers\Api\Public\IndustryContro
 
 Route::post('contact', [\App\Http\Controllers\Api\Public\ContactController::class, 'store']);
 
+Route::get('blogs/categories', [\App\Http\Controllers\Api\Public\BlogController::class, 'categories']);
+Route::get('blogs', [\App\Http\Controllers\Api\Public\BlogController::class, 'index']);
+Route::get('blogs/{blog}', [\App\Http\Controllers\Api\Public\BlogController::class, 'show']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('admin/logout', [AdminAuthController::class, 'logout']);
     Route::get('admin/me', [AdminAuthController::class, 'me']);
@@ -84,4 +88,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('admin/industries/{item}', [\App\Http\Controllers\Api\Admin\AdminIndustryController::class, 'show']);
     Route::post('admin/industries/{item}', [\App\Http\Controllers\Api\Admin\AdminIndustryController::class, 'update']);
     Route::delete('admin/industries/{item}', [\App\Http\Controllers\Api\Admin\AdminIndustryController::class, 'destroy']);
+
+    Route::get('admin/blog-categories', [\App\Http\Controllers\Api\Admin\AdminBlogCategoryController::class, 'index']);
+    Route::post('admin/blog-categories', [\App\Http\Controllers\Api\Admin\AdminBlogCategoryController::class, 'store']);
+    Route::get('admin/blog-categories/{blogCategory}', [\App\Http\Controllers\Api\Admin\AdminBlogCategoryController::class, 'show']);
+    Route::post('admin/blog-categories/{blogCategory}', [\App\Http\Controllers\Api\Admin\AdminBlogCategoryController::class, 'update']);
+    Route::delete('admin/blog-categories/{blogCategory}', [\App\Http\Controllers\Api\Admin\AdminBlogCategoryController::class, 'destroy']);
+
+    Route::get('admin/blogs', [\App\Http\Controllers\Api\Admin\AdminBlogController::class, 'index']);
+    Route::post('admin/blogs', [\App\Http\Controllers\Api\Admin\AdminBlogController::class, 'store']);
+    Route::get('admin/blogs/{blog}', [\App\Http\Controllers\Api\Admin\AdminBlogController::class, 'show']);
+    Route::post('admin/blogs/{blog}', [\App\Http\Controllers\Api\Admin\AdminBlogController::class, 'update']);
+    Route::delete('admin/blogs/{blog}', [\App\Http\Controllers\Api\Admin\AdminBlogController::class, 'destroy']);
 });
