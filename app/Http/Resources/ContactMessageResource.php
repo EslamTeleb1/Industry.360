@@ -21,6 +21,8 @@ class ContactMessageResource extends JsonResource
             'service' => new ServiceResource($this->whenLoaded('service')),
             'solution_id' => $this->solution_id,
             'solution' => new ServiceResource($this->whenLoaded('solution')),
+            'package_id' => $this->package_id,
+            'package' => new PackageResource($this->whenLoaded('package')),
             'created_at' => optional($this->created_at)->toDateTimeString(),
             'updated_at' => optional($this->updated_at)->toDateTimeString(),
         ];

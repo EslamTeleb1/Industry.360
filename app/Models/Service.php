@@ -31,4 +31,9 @@ class Service extends Model
     {
         return $this->img_path ? asset('storage/' . $this->img_path) : null;
     }
+
+    public function packages()
+    {
+        return $this->hasMany(Package::class, 'service_id');
+    }
 }

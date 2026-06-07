@@ -100,4 +100,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('admin/blogs/{blog}', [\App\Http\Controllers\Api\Admin\AdminBlogController::class, 'show']);
     Route::post('admin/blogs/{blog}', [\App\Http\Controllers\Api\Admin\AdminBlogController::class, 'update']);
     Route::delete('admin/blogs/{blog}', [\App\Http\Controllers\Api\Admin\AdminBlogController::class, 'destroy']);
+    Route::apiResource('admin/packages', \App\Http\Controllers\Api\Admin\AdminPackageController::class);
 });

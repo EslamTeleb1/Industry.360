@@ -19,8 +19,9 @@ class ContactController extends Controller
             'email' => ['required', 'email', 'max:255'],
             'phone' => ['required', 'string', 'max:20'],
             'industry_id' => ['required', 'integer', 'exists:services,id'],
-            'service_id' => ['required', 'integer', 'exists:services,id'],
-            'solution_id' => ['required', 'integer', 'exists:services,id'],
+            'service_id' => ['nullable', 'required_without:solution_id', 'integer', 'exists:services,id'],
+            'solution_id' => ['nullable', 'required_without:service_id', 'integer', 'exists:services,id'],
+            'package_id' => ['required', 'integer', 'exists:packages,id'],
             'description' => ['required', 'string'],
         ]);
 

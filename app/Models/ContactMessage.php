@@ -14,6 +14,7 @@ class ContactMessage extends Model
         'industry_id',
         'service_id',
         'solution_id',
+        'package_id',
         'description',
     ];
 
@@ -30,5 +31,10 @@ class ContactMessage extends Model
     public function solution()
     {
         return $this->belongsTo(Service::class, 'solution_id');
+    }
+
+    public function package()
+    {
+        return $this->belongsTo(Package::class, 'package_id');
     }
 }

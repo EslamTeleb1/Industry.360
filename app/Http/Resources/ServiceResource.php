@@ -25,6 +25,7 @@ class ServiceResource extends JsonResource
             'description_ar' => $descriptionTranslations['ar'] ?? null,
             'img_url' => $this->img_url,
             'service_order' => $this->service_order,
+            'packages' => PackageResource::collection($this->whenLoaded('packages')),
             'created_at' => optional($this->created_at)->toDateTimeString(),
             'updated_at' => optional($this->updated_at)->toDateTimeString(),
         ];

@@ -18,7 +18,7 @@ class ContactMessageController extends Controller
         $perPage = max(1, min(100, $request->integer('per_page', 20)));
         $search = trim((string) $request->input('search', ''));
 
-        $query = ContactMessage::with(['industry', 'service', 'solution'])
+        $query = ContactMessage::with(['industry', 'service', 'solution', 'package'])
             ->orderByDesc('id');
 
         if ($request->filled('email')) {
@@ -60,7 +60,7 @@ class ContactMessageController extends Controller
 
     public function show(ContactMessage $contactMessage)
     {
-        $contactMessage->load(['industry', 'service', 'solution']);
+        $contactMessage->load(['industry', 'service', 'solution', 'package']);
 
         return $this->successResponse([
             'contact_message' => new ContactMessageResource($contactMessage),

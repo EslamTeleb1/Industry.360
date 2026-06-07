@@ -25,6 +25,7 @@ class ServiceController extends Controller
         $search = trim((string) $request->input('search', ''));
 
         $items = $this->typeQuery($this->getModuleType())
+            ->with('packages')
             ->when($search !== '', function ($query) use ($search) {
                 $query->where('title->en', 'like', "%{$search}%")
                     ->orWhere('title->ar', 'like', "%{$search}%")
@@ -52,6 +53,8 @@ class ServiceController extends Controller
         if ($item->type !== $this->getModuleType()) {
             return $this->notFoundResponse('Service not found');
         }
+
+        $item->load('packages');
 
         return $this->successResponse([
             'service' => new ServiceResource($item),
