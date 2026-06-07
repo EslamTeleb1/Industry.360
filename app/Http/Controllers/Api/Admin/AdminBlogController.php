@@ -46,14 +46,18 @@ class AdminBlogController extends Controller
 
     public function store(Request $request)
     {
+        if (is_string($request->input('description'))) {
+            $request->merge(['description' => json_decode($request->input('description'), true)]);
+        }
+
         $data = $request->validate([
             'blog_category_id' => ['required', 'integer', 'exists:blog_categories,id'],
             'title' => ['required', 'array'],
             'title.en' => ['required', 'string'],
             'title.ar' => ['required', 'string'],
             'description' => ['required', 'array'],
-            'description.en' => ['required', 'string'],
-            'description.ar' => ['required', 'string'],
+            'description.en' => ['required'],
+            'description.ar' => ['required'],
             'date' => ['required', 'date'],
             'img' => ['nullable', 'image', 'max:2048'],
             'is_active' => ['sometimes', 'boolean'],
@@ -82,14 +86,18 @@ class AdminBlogController extends Controller
 
     public function update(Request $request, Blog $blog)
     {
+        if (is_string($request->input('description'))) {
+            $request->merge(['description' => json_decode($request->input('description'), true)]);
+        }
+
         $data = $request->validate([
             'blog_category_id' => ['sometimes', 'integer', 'exists:blog_categories,id'],
             'title' => ['sometimes', 'array'],
             'title.en' => ['required_with:title', 'string'],
             'title.ar' => ['required_with:title', 'string'],
             'description' => ['sometimes', 'array'],
-            'description.en' => ['required_with:description', 'string'],
-            'description.ar' => ['required_with:description', 'string'],
+            'description.en' => ['required_with:description'],
+            'description.ar' => ['required_with:description'],
             'date' => ['sometimes', 'date'],
             'img' => ['nullable', 'image', 'max:2048'],
             'is_active' => ['sometimes', 'boolean'],

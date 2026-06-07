@@ -11,6 +11,8 @@ class BlogCategoryResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->getTranslations('title'),
+            'title_en' => $this->getTranslation('title', 'en', false),
+            'title_ar' => $this->getTranslation('title', 'ar', false),
             'is_active' => $this->is_active,
             'created_at' => optional($this->created_at)->toDateTimeString(),
             'updated_at' => optional($this->updated_at)->toDateTimeString(),
