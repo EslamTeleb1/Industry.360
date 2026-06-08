@@ -32,6 +32,12 @@ Route::get('blogs/categories', [\App\Http\Controllers\Api\Public\BlogController:
 Route::get('blogs', [\App\Http\Controllers\Api\Public\BlogController::class, 'index']);
 Route::get('blogs/{blog}', [\App\Http\Controllers\Api\Public\BlogController::class, 'show']);
 
+Route::get('faqs/categories', [\App\Http\Controllers\Api\Public\FaqController::class, 'categories']);
+Route::get('faqs', [\App\Http\Controllers\Api\Public\FaqController::class, 'index']);
+Route::get('partners', [\App\Http\Controllers\Api\Public\PartnerController::class, 'index']);
+Route::get('case-studies', [\App\Http\Controllers\Api\Public\CaseStudyController::class, 'index']);
+Route::get('case-studies/{caseStudy}', [\App\Http\Controllers\Api\Public\CaseStudyController::class, 'show']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('admin/logout', [AdminAuthController::class, 'logout']);
     Route::get('admin/me', [AdminAuthController::class, 'me']);
@@ -100,5 +106,30 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('admin/blogs/{blog}', [\App\Http\Controllers\Api\Admin\AdminBlogController::class, 'show']);
     Route::post('admin/blogs/{blog}', [\App\Http\Controllers\Api\Admin\AdminBlogController::class, 'update']);
     Route::delete('admin/blogs/{blog}', [\App\Http\Controllers\Api\Admin\AdminBlogController::class, 'destroy']);
+
+    Route::get('admin/faq-categories', [\App\Http\Controllers\Api\Admin\AdminFaqCategoryController::class, 'index']);
+    Route::post('admin/faq-categories', [\App\Http\Controllers\Api\Admin\AdminFaqCategoryController::class, 'store']);
+    Route::get('admin/faq-categories/{faqCategory}', [\App\Http\Controllers\Api\Admin\AdminFaqCategoryController::class, 'show']);
+    Route::post('admin/faq-categories/{faqCategory}', [\App\Http\Controllers\Api\Admin\AdminFaqCategoryController::class, 'update']);
+    Route::delete('admin/faq-categories/{faqCategory}', [\App\Http\Controllers\Api\Admin\AdminFaqCategoryController::class, 'destroy']);
+
+    Route::get('admin/faqs', [\App\Http\Controllers\Api\Admin\AdminFaqController::class, 'index']);
+    Route::post('admin/faqs', [\App\Http\Controllers\Api\Admin\AdminFaqController::class, 'store']);
+    Route::get('admin/faqs/{faq}', [\App\Http\Controllers\Api\Admin\AdminFaqController::class, 'show']);
+    Route::post('admin/faqs/{faq}', [\App\Http\Controllers\Api\Admin\AdminFaqController::class, 'update']);
+    Route::delete('admin/faqs/{faq}', [\App\Http\Controllers\Api\Admin\AdminFaqController::class, 'destroy']);
+
+    Route::get('admin/partners', [\App\Http\Controllers\Api\Admin\AdminPartnerController::class, 'index']);
+    Route::post('admin/partners', [\App\Http\Controllers\Api\Admin\AdminPartnerController::class, 'store']);
+    Route::get('admin/partners/{partner}', [\App\Http\Controllers\Api\Admin\AdminPartnerController::class, 'show']);
+    Route::post('admin/partners/{partner}', [\App\Http\Controllers\Api\Admin\AdminPartnerController::class, 'update']);
+    Route::delete('admin/partners/{partner}', [\App\Http\Controllers\Api\Admin\AdminPartnerController::class, 'destroy']);
+
+    Route::get('admin/case-studies', [\App\Http\Controllers\Api\Admin\AdminCaseStudyController::class, 'index']);
+    Route::post('admin/case-studies', [\App\Http\Controllers\Api\Admin\AdminCaseStudyController::class, 'store']);
+    Route::get('admin/case-studies/{caseStudy}', [\App\Http\Controllers\Api\Admin\AdminCaseStudyController::class, 'show']);
+    Route::post('admin/case-studies/{caseStudy}', [\App\Http\Controllers\Api\Admin\AdminCaseStudyController::class, 'update']);
+    Route::delete('admin/case-studies/{caseStudy}', [\App\Http\Controllers\Api\Admin\AdminCaseStudyController::class, 'destroy']);
+
     Route::apiResource('admin/packages', \App\Http\Controllers\Api\Admin\AdminPackageController::class);
 });
