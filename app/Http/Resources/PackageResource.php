@@ -2,19 +2,21 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Traits\HasTranslatableAttributes;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PackageResource extends JsonResource
 {
+    use HasTranslatableAttributes;
     public function toArray($request): array
     {
         return [
             'id' => $this->id,
             'service_id' => $this->service_id,
-            'title' => $this->getTranslations('title'),
+            'title' => $this->translatedValue('title'),
             'title_en' => $this->getTranslation('title', 'en', false),
             'title_ar' => $this->getTranslation('title', 'ar', false),
-            'description' => $this->getTranslations('description'),
+            'description' => $this->translatedValue('description'),
             'description_en' => $this->getTranslation('description', 'en', false),
             'description_ar' => $this->getTranslation('description', 'ar', false),
 
