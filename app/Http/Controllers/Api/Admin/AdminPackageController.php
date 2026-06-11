@@ -14,59 +14,35 @@ class AdminPackageController extends Controller
     use ApiResponse;
 
     public function index(Request $request)
-    {
-        $perPage = max(1, min(100, $request->integer('per_page', 20)));
-        $serviceType = $request->input('service_type', 'service'); // default to 'service'
-        $serviceId = $request->input('service_id');
-        $search = trim((string) $request->input('search', ''));
+        {
+            $perPage = max(1, min(100, $request->integer('per_page', 20)));
+            $serviceType = $request->input('service_type', 'service');
+            $serviceId = $request->input('service_id');
+            $search = trim((string) $request->input('search', ''));
 
-        $query = Package::orderByDesc('id');
+            $query = Package::orderByDesc('id')->with('serviceable'); // 👈 always load the correct relation
 
-        // Filter by service type and id if provided
-        if ($serviceId) {
-            $query->where('service_id', $serviceId)
-                ->where('service_type', $serviceType);
+            if ($serviceId) {
+                $query->where('service_id', $serviceId)
+                    ->where('service_type', $serviceType);
+            }
 
-            // Load appropriate relationship
-            match ($serviceType) {
-                'contact_industry' => $query->with('contactIndustry'),
-                'contact_service' => $query->with('contactService'),
-                'contact_solution' => $query->with('contactSolution'),
-                default => $query->with('service'),
-            };
-        } else {
-            // No filter, load based on service_type
-            $query->with(function ($q) use ($serviceType) {
-                match ($serviceType) {
-                    'contact_industry' => $q->contactIndustry(),
-                    'contact_service' => $q->contactService(),
-                    'contact_solution' => $q->contactSolution(),
-                    default => $q->service(),
-                };
-            });
+            if ($search !== '') {
+                $query->where(function ($q) use ($search) {
+                    $q->where('title->en', 'like', "%{$search}%")
+                    ->orWhere('title->ar', 'like', "%{$search}%")
+                    ->orWhere('description->en', 'like', "%{$search}%")
+                    ->orWhere('description->ar', 'like', "%{$search}%");
+                });
+            }
+
+            $packages = $query->paginate($perPage);
+
+            return $this->successResponse([
+                'packages' => PackageResource::collection($packages->getCollection()),
+                'pagination' => [...],
+            ], 'Packages retrieved successfully');
         }
-
-        if ($search !== '') {
-            $query->where(function ($q) use ($search) {
-                $q->where('title->en', 'like', "%{$search}%")
-                  ->orWhere('title->ar', 'like', "%{$search}%")
-                  ->orWhere('description->en', 'like', "%{$search}%")
-                  ->orWhere('description->ar', 'like', "%{$search}%");
-            });
-        }
-
-        $packages = $query->paginate($perPage);
-
-        return $this->successResponse([
-            'packages' => PackageResource::collection($packages->getCollection()),
-            'pagination' => [
-                'current_page' => $packages->currentPage(),
-                'last_page' => $packages->lastPage(),
-                'per_page' => $packages->perPage(),
-                'total' => $packages->total(),
-            ],
-        ], 'Packages retrieved successfully');
-    }
 
     public function store(Request $request)
     {

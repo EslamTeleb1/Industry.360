@@ -12,22 +12,18 @@ class PackageResource extends JsonResource
     {
         $service = null;
 
-        // Load the correct relationship based on service_type
-        if ($this->service_id) {
-            switch ($this->service_type ?? 'service') {
-                case 'contact_industry':
-                    $service = new ContactLookupResource($this->whenLoaded('contactIndustry'));
-                    break;
-                case 'contact_service':
-                    $service = new ContactLookupResource($this->whenLoaded('contactService'));
-                    break;
-                case 'contact_solution':
-                    $service = new ContactLookupResource($this->whenLoaded('contactSolution'));
-                    break;
-                default:
-                    $service = new ServiceResource($this->whenLoaded('service'));
+          $serviceResource = null;
+            $serviceable = $this->whenLoaded('serviceable');
+
+            if ($serviceable) {
+                $serviceType = $this->service_type ?? 'service';
+                $serviceResource = match ($serviceType) {
+                    'contact_industry', 'contact_service', 'contact_solution'
+                        => new ContactLookupResource($serviceable),
+                    default => new ServiceResource($serviceable),
+                };
             }
-        }
+
 
         return [
             'id' => $this->id,
@@ -39,7 +35,7 @@ class PackageResource extends JsonResource
             'description_en' => $this->getTranslation('description', 'en', false),
             'description_ar' => $this->getTranslation('description', 'ar', false),
             'is_active' => $this->is_active,
-            'service' => $service,
+            'service' =>$serviceResource,
             'created_at' => optional($this->created_at)->toDateTimeString(),
             'updated_at' => optional($this->updated_at)->toDateTimeString(),
         ];
