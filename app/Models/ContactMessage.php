@@ -20,17 +20,17 @@ class ContactMessage extends Model
 
     public function industry()
     {
-        return $this->belongsTo(Service::class, 'industry_id');
+        return $this->belongsTo(ContactIndustry::class, 'industry_id');
     }
 
     public function service()
     {
-        return $this->belongsTo(Service::class, 'service_id');
+        return $this->belongsTo(ContactService::class, 'service_id');
     }
 
     public function solution()
     {
-        return $this->belongsTo(Service::class, 'solution_id');
+        return $this->belongsTo(ContactSolution::class, 'solution_id');
     }
 
     public function package()

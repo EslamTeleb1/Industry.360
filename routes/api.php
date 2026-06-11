@@ -26,6 +26,7 @@ Route::get('solutions/{item}', [\App\Http\Controllers\Api\Public\SolutionControl
 Route::get('industries', [\App\Http\Controllers\Api\Public\IndustryController::class, 'index']);
 Route::get('industries/{item}', [\App\Http\Controllers\Api\Public\IndustryController::class, 'show']);
 
+Route::get('contact/lookups', [\App\Http\Controllers\Api\Public\ContactController::class, 'lookups']);
 Route::post('contact', [\App\Http\Controllers\Api\Public\ContactController::class, 'store']);
 
 Route::get('blogs/categories', [\App\Http\Controllers\Api\Public\BlogController::class, 'categories']);
@@ -130,6 +131,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('admin/case-studies/{caseStudy}', [\App\Http\Controllers\Api\Admin\AdminCaseStudyController::class, 'show']);
     Route::post('admin/case-studies/{caseStudy}', [\App\Http\Controllers\Api\Admin\AdminCaseStudyController::class, 'update']);
     Route::delete('admin/case-studies/{caseStudy}', [\App\Http\Controllers\Api\Admin\AdminCaseStudyController::class, 'destroy']);
+
+    // Contact Lookups Admin Routes
+    Route::get('admin/contact-industries', [\App\Http\Controllers\Api\Admin\AdminContactIndustryController::class, 'index']);
+    Route::post('admin/contact-industries', [\App\Http\Controllers\Api\Admin\AdminContactIndustryController::class, 'store']);
+    Route::get('admin/contact-industries/{industry}', [\App\Http\Controllers\Api\Admin\AdminContactIndustryController::class, 'show']);
+    Route::post('admin/contact-industries/{industry}', [\App\Http\Controllers\Api\Admin\AdminContactIndustryController::class, 'update']);
+    Route::delete('admin/contact-industries/{industry}', [\App\Http\Controllers\Api\Admin\AdminContactIndustryController::class, 'destroy']);
+
+    Route::get('admin/contact-services', [\App\Http\Controllers\Api\Admin\AdminContactServiceController::class, 'index']);
+    Route::post('admin/contact-services', [\App\Http\Controllers\Api\Admin\AdminContactServiceController::class, 'store']);
+    Route::get('admin/contact-services/{service}', [\App\Http\Controllers\Api\Admin\AdminContactServiceController::class, 'show']);
+    Route::post('admin/contact-services/{service}', [\App\Http\Controllers\Api\Admin\AdminContactServiceController::class, 'update']);
+    Route::delete('admin/contact-services/{service}', [\App\Http\Controllers\Api\Admin\AdminContactServiceController::class, 'destroy']);
+
+    Route::get('admin/contact-solutions', [\App\Http\Controllers\Api\Admin\AdminContactSolutionController::class, 'index']);
+    Route::post('admin/contact-solutions', [\App\Http\Controllers\Api\Admin\AdminContactSolutionController::class, 'store']);
+    Route::get('admin/contact-solutions/{solution}', [\App\Http\Controllers\Api\Admin\AdminContactSolutionController::class, 'show']);
+    Route::post('admin/contact-solutions/{solution}', [\App\Http\Controllers\Api\Admin\AdminContactSolutionController::class, 'update']);
+    Route::delete('admin/contact-solutions/{solution}', [\App\Http\Controllers\Api\Admin\AdminContactSolutionController::class, 'destroy']);
 
     Route::apiResource('admin/packages', \App\Http\Controllers\Api\Admin\AdminPackageController::class);
 });

@@ -7,6 +7,7 @@ use App\Http\Resources\PackageResource;
 use App\Models\Package;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AdminPackageController extends Controller
 {
@@ -15,13 +16,34 @@ class AdminPackageController extends Controller
     public function index(Request $request)
     {
         $perPage = max(1, min(100, $request->integer('per_page', 20)));
+        $serviceType = $request->input('service_type', 'service'); // default to 'service'
         $serviceId = $request->input('service_id');
         $search = trim((string) $request->input('search', ''));
 
-        $query = Package::with('service')->orderByDesc('id');
+        $query = Package::orderByDesc('id');
 
+        // Filter by service type and id if provided
         if ($serviceId) {
-            $query->where('service_id', $serviceId);
+            $query->where('service_id', $serviceId)
+                ->where('service_type', $serviceType);
+
+            // Load appropriate relationship
+            match ($serviceType) {
+                'contact_industry' => $query->with('contactIndustry'),
+                'contact_service' => $query->with('contactService'),
+                'contact_solution' => $query->with('contactSolution'),
+                default => $query->with('service'),
+            };
+        } else {
+            // No filter, load based on service_type
+            $query->with(function ($q) use ($serviceType) {
+                match ($serviceType) {
+                    'contact_industry' => $q->contactIndustry(),
+                    'contact_service' => $q->contactService(),
+                    'contact_solution' => $q->contactSolution(),
+                    default => $q->service(),
+                };
+            });
         }
 
         if ($search !== '') {
@@ -48,8 +70,20 @@ class AdminPackageController extends Controller
 
     public function store(Request $request)
     {
+        $serviceType = $request->input('service_type', 'service'); // default to 'service'
+        $serviceId = $request->input('service_id');
+
         $data = $request->validate([
-            'service_id' => ['required', 'integer', 'exists:services,id'],
+            'service_id' => [
+                'required',
+                'integer',
+                $this->getServiceIdRule($serviceType),
+            ],
+            'service_type' => [
+                'sometimes',
+                'string',
+                Rule::in(['service', 'contact_industry', 'contact_service', 'contact_solution']),
+            ],
             'title' => ['required', 'array'],
             'title.en' => ['required', 'string'],
             'title.ar' => ['required', 'string'],
@@ -59,8 +93,13 @@ class AdminPackageController extends Controller
             'is_active' => ['sometimes', 'boolean'],
         ]);
 
+        // Ensure service_type is set
+        $data['service_type'] = $serviceType;
+
         $package = Package::create($data);
-        $package->load('service');
+
+        // Load appropriate relationship
+        $this->loadPackageRelationship($package);
 
         return $this->createdResponse([
             'package' => new PackageResource($package),
@@ -69,7 +108,8 @@ class AdminPackageController extends Controller
 
     public function show(Package $package)
     {
-        $package->load('service');
+        // Load appropriate relationship
+        $this->loadPackageRelationship($package);
 
         return $this->successResponse([
             'package' => new PackageResource($package),
@@ -78,8 +118,19 @@ class AdminPackageController extends Controller
 
     public function update(Request $request, Package $package)
     {
+        $serviceType = $package->service_type ?? 'service';
+
         $data = $request->validate([
-            'service_id' => ['sometimes', 'integer', 'exists:services,id'],
+            'service_id' => [
+                'sometimes',
+                'integer',
+                $this->getServiceIdRule($serviceType),
+            ],
+            'service_type' => [
+                'sometimes',
+                'string',
+                Rule::in(['service', 'contact_industry', 'contact_service', 'contact_solution']),
+            ],
             'title' => ['sometimes', 'array'],
             'title.en' => ['required_with:title', 'string'],
             'title.ar' => ['required_with:title', 'string'],
@@ -90,7 +141,9 @@ class AdminPackageController extends Controller
         ]);
 
         $package->update($data);
-        $package->load('service');
+
+        // Load appropriate relationship
+        $this->loadPackageRelationship($package);
 
         return $this->successResponse([
             'package' => new PackageResource($package),
@@ -102,5 +155,31 @@ class AdminPackageController extends Controller
         $package->delete();
 
         return $this->successResponse(null, 'Package deleted successfully');
+    }
+
+    /**
+     * Get validation rule for service_id based on service_type
+     */
+    private function getServiceIdRule($serviceType)
+    {
+        return match ($serviceType) {
+            'contact_industry' => Rule::exists('contact_industries', 'id'),
+            'contact_service' => Rule::exists('contact_services', 'id'),
+            'contact_solution' => Rule::exists('contact_solutions', 'id'),
+            default => Rule::exists('services', 'id'),
+        };
+    }
+
+    /**
+     * Load appropriate relationship based on service_type
+     */
+    private function loadPackageRelationship(Package $package): void
+    {
+        match ($package->service_type ?? 'service') {
+            'contact_industry' => $package->load('contactIndustry'),
+            'contact_service' => $package->load('contactService'),
+            'contact_solution' => $package->load('contactSolution'),
+            default => $package->load('service'),
+        };
     }
 }

@@ -10,6 +10,25 @@ class PackageResource extends JsonResource
     use HasTranslatableAttributes;
     public function toArray($request): array
     {
+        $service = null;
+
+        // Load the correct relationship based on service_type
+        if ($this->service_id) {
+            switch ($this->service_type ?? 'service') {
+                case 'contact_industry':
+                    $service = new ContactLookupResource($this->whenLoaded('contactIndustry'));
+                    break;
+                case 'contact_service':
+                    $service = new ContactLookupResource($this->whenLoaded('contactService'));
+                    break;
+                case 'contact_solution':
+                    $service = new ContactLookupResource($this->whenLoaded('contactSolution'));
+                    break;
+                default:
+                    $service = new ServiceResource($this->whenLoaded('service'));
+            }
+        }
+
         return [
             'id' => $this->id,
             'service_id' => $this->service_id,
@@ -19,9 +38,8 @@ class PackageResource extends JsonResource
             'description' => $this->translatedValue('description'),
             'description_en' => $this->getTranslation('description', 'en', false),
             'description_ar' => $this->getTranslation('description', 'ar', false),
-
             'is_active' => $this->is_active,
-            'service' => new ServiceResource($this->whenLoaded('service')),
+            'service' => $service,
             'created_at' => optional($this->created_at)->toDateTimeString(),
             'updated_at' => optional($this->updated_at)->toDateTimeString(),
         ];
