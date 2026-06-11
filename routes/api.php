@@ -46,6 +46,15 @@ Route::get('partners', [\App\Http\Controllers\Api\Public\PartnerController::clas
 Route::get('case-studies', [\App\Http\Controllers\Api\Public\CaseStudyController::class, 'index']);
 Route::get('case-studies/{caseStudy}', [\App\Http\Controllers\Api\Public\CaseStudyController::class, 'show']);
 
+Route::get('vision-message/setting', [\App\Http\Controllers\Api\Public\VisionMessageController::class, 'setting']);
+Route::get('vision-messages', [\App\Http\Controllers\Api\Public\VisionMessageController::class, 'index']);
+
+Route::get('methodology/setting', [\App\Http\Controllers\Api\Public\MethodologyController::class, 'setting']);
+Route::get('methodologies', [\App\Http\Controllers\Api\Public\MethodologyController::class, 'index']);
+
+Route::get('team/setting', [\App\Http\Controllers\Api\Public\TeamController::class, 'setting']);
+Route::get('team-members', [\App\Http\Controllers\Api\Public\TeamController::class, 'index']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('admin/logout', [AdminAuthController::class, 'logout']);
     Route::get('admin/me', [AdminAuthController::class, 'me']);
@@ -159,4 +168,34 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('admin/contact-solutions/{solution}', [\App\Http\Controllers\Api\Admin\AdminContactSolutionController::class, 'destroy']);
 
     Route::apiResource('admin/packages', \App\Http\Controllers\Api\Admin\AdminPackageController::class);
+
+    // Vision & Message
+    Route::get('admin/vision-message/setting', [\App\Http\Controllers\Api\Admin\AdminVisionMessageSettingController::class, 'show']);
+    Route::post('admin/vision-message/setting', [\App\Http\Controllers\Api\Admin\AdminVisionMessageSettingController::class, 'update']);
+
+    Route::get('admin/vision-messages', [\App\Http\Controllers\Api\Admin\AdminVisionMessageController::class, 'index']);
+    Route::post('admin/vision-messages', [\App\Http\Controllers\Api\Admin\AdminVisionMessageController::class, 'store']);
+    Route::get('admin/vision-messages/{visionMessage}', [\App\Http\Controllers\Api\Admin\AdminVisionMessageController::class, 'show']);
+    Route::post('admin/vision-messages/{visionMessage}', [\App\Http\Controllers\Api\Admin\AdminVisionMessageController::class, 'update']);
+    Route::delete('admin/vision-messages/{visionMessage}', [\App\Http\Controllers\Api\Admin\AdminVisionMessageController::class, 'destroy']);
+
+    // Our Methodology
+    Route::get('admin/methodology/setting', [\App\Http\Controllers\Api\Admin\AdminMethodologySettingController::class, 'show']);
+    Route::post('admin/methodology/setting', [\App\Http\Controllers\Api\Admin\AdminMethodologySettingController::class, 'update']);
+
+    Route::get('admin/methodologies', [\App\Http\Controllers\Api\Admin\AdminMethodologyController::class, 'index']);
+    Route::post('admin/methodologies', [\App\Http\Controllers\Api\Admin\AdminMethodologyController::class, 'store']);
+    Route::get('admin/methodologies/{methodology}', [\App\Http\Controllers\Api\Admin\AdminMethodologyController::class, 'show']);
+    Route::post('admin/methodologies/{methodology}', [\App\Http\Controllers\Api\Admin\AdminMethodologyController::class, 'update']);
+    Route::delete('admin/methodologies/{methodology}', [\App\Http\Controllers\Api\Admin\AdminMethodologyController::class, 'destroy']);
+
+    // Our Team
+    Route::get('admin/team/setting', [\App\Http\Controllers\Api\Admin\AdminTeamSettingController::class, 'show']);
+    Route::post('admin/team/setting', [\App\Http\Controllers\Api\Admin\AdminTeamSettingController::class, 'update']);
+
+    Route::get('admin/team-members', [\App\Http\Controllers\Api\Admin\AdminTeamMemberController::class, 'index']);
+    Route::post('admin/team-members', [\App\Http\Controllers\Api\Admin\AdminTeamMemberController::class, 'store']);
+    Route::get('admin/team-members/{teamMember}', [\App\Http\Controllers\Api\Admin\AdminTeamMemberController::class, 'show']);
+    Route::post('admin/team-members/{teamMember}', [\App\Http\Controllers\Api\Admin\AdminTeamMemberController::class, 'update']);
+    Route::delete('admin/team-members/{teamMember}', [\App\Http\Controllers\Api\Admin\AdminTeamMemberController::class, 'destroy']);
 });
