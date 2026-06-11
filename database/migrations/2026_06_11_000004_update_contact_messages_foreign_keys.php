@@ -9,11 +9,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('contact_messages', function (Blueprint $table) {
-            // Drop existing foreign keys
-            $table->dropForeign(['industry_id']);
-            $table->dropForeign(['service_id']);
-            $table->dropForeign(['solution_id']);
-            $table->dropForeign(['package_id']);
+            // Drop existing foreign keys if present (ignore errors when not present)
+            try { $table->dropForeign(['industry_id']); } catch (\Exception $e) {}
+            try { $table->dropForeign(['service_id']); } catch (\Exception $e) {}
+            try { $table->dropForeign(['solution_id']); } catch (\Exception $e) {}
+            try { $table->dropForeign(['package_id']); } catch (\Exception $e) {}
         });
 
         Schema::table('contact_messages', function (Blueprint $table) {
@@ -24,19 +24,16 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->foreign('service_id')
-                ->nullable()
                 ->references('id')
                 ->on('contact_services')
                 ->nullOnDelete();
 
             $table->foreign('solution_id')
-                ->nullable()
                 ->references('id')
                 ->on('contact_solutions')
                 ->nullOnDelete();
 
             $table->foreign('package_id')
-                ->nullable()
                 ->references('id')
                 ->on('packages')
                 ->nullOnDelete();
@@ -46,10 +43,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('contact_messages', function (Blueprint $table) {
-            $table->dropForeign(['industry_id']);
-            $table->dropForeign(['service_id']);
-            $table->dropForeign(['solution_id']);
-            $table->dropForeign(['package_id']);
+            // Drop foreign keys if present when rolling back
+            try { $table->dropForeign(['industry_id']); } catch (\Exception $e) {}
+            try { $table->dropForeign(['service_id']); } catch (\Exception $e) {}
+            try { $table->dropForeign(['solution_id']); } catch (\Exception $e) {}
+            try { $table->dropForeign(['package_id']); } catch (\Exception $e) {}
         });
 
         Schema::table('contact_messages', function (Blueprint $table) {
