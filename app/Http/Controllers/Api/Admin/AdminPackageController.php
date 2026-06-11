@@ -40,7 +40,12 @@ class AdminPackageController extends Controller
 
             return $this->successResponse([
                 'packages' => PackageResource::collection($packages->getCollection()),
-                'pagination' => [...],
+                'pagination' => [
+                    'total' => $packages->total(),
+                    'per_page' => $packages->perPage(),
+                    'current_page' => $packages->currentPage(),
+                    'last_page' => $packages->lastPage(),
+                ],
             ], 'Packages retrieved successfully');
         }
 
