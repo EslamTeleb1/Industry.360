@@ -39,19 +39,45 @@ return new class extends Migration
 
     public function up(): void
     {
-        // Define the expected default foreign key names
-        $keys = [
+        // --- 1. Drop old foreign keys (if they still exist) ---
+        $oldKeys = [
             'contact_messages_industry_id_foreign',
             'contact_messages_service_id_foreign',
             'contact_messages_solution_id_foreign',
             'contact_messages_package_id_foreign',
         ];
 
-        foreach ($keys as $key) {
+        foreach ($oldKeys as $key) {
             $this->dropForeignKeyIfExists('contact_messages', $key);
         }
 
-        // Add the new foreign keys
+        // --- 2. Clean up orphaned references (set to NULL) ---
+        // Only run these updates if the target tables exist
+        if (Schema::hasTable('contact_industries')) {
+            DB::table('contact_messages')
+                ->whereNotIn('industry_id', DB::table('contact_industries')->select('id'))
+                ->update(['industry_id' => null]);
+        }
+
+        if (Schema::hasTable('contact_services')) {
+            DB::table('contact_messages')
+                ->whereNotIn('service_id', DB::table('contact_services')->select('id'))
+                ->update(['service_id' => null]);
+        }
+
+        if (Schema::hasTable('contact_solutions')) {
+            DB::table('contact_messages')
+                ->whereNotIn('solution_id', DB::table('contact_solutions')->select('id'))
+                ->update(['solution_id' => null]);
+        }
+
+        if (Schema::hasTable('packages')) {
+            DB::table('contact_messages')
+                ->whereNotIn('package_id', DB::table('packages')->select('id'))
+                ->update(['package_id' => null]);
+        }
+
+        // --- 3. Add the new foreign keys ---
         Schema::table('contact_messages', function (Blueprint $table) {
             $table->foreign('industry_id')
                 ->references('id')
@@ -77,19 +103,19 @@ return new class extends Migration
 
     public function down(): void
     {
-        // Drop the *new* foreign keys first (they may or may not exist)
+        // Drop the new foreign keys first
         $newKeys = [
-            'contact_messages_industry_id_foreign',   // now points to contact_industries
-            'contact_messages_service_id_foreign',    // now points to contact_services
-            'contact_messages_solution_id_foreign',   // now points to contact_solutions
-            'contact_messages_package_id_foreign',    // now points to packages
+            'contact_messages_industry_id_foreign',
+            'contact_messages_service_id_foreign',
+            'contact_messages_solution_id_foreign',
+            'contact_messages_package_id_foreign',
         ];
 
         foreach ($newKeys as $key) {
             $this->dropForeignKeyIfExists('contact_messages', $key);
         }
 
-        // Revert to the old foreign keys (if their target tables still exist)
+        // Revert to the old foreign keys (if old tables still exist)
         Schema::table('contact_messages', function (Blueprint $table) {
             $table->foreign('industry_id')
                 ->references('id')
