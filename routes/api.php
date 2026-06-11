@@ -19,12 +19,19 @@ Route::get('careers/jobs', [CareerPublicController::class, 'index']);
 Route::get('careers/jobs/{job}', [CareerPublicController::class, 'show']);
 Route::post('careers/jobs/{job}/apply', [CareerApplicationController::class, 'apply']);
 
-Route::get('services', [\App\Http\Controllers\Api\Public\ContactLookupPublicController::class, 'services']);
-Route::get('services/{item}', [\App\Http\Controllers\Api\Public\ContactLookupPublicController::class, 'showService']);
-Route::get('solutions', [\App\Http\Controllers\Api\Public\ContactLookupPublicController::class, 'solutions']);
-Route::get('solutions/{item}', [\App\Http\Controllers\Api\Public\ContactLookupPublicController::class, 'showSolution']);
-Route::get('industries', [\App\Http\Controllers\Api\Public\ContactLookupPublicController::class, 'industries']);
-Route::get('industries/{item}', [\App\Http\Controllers\Api\Public\ContactLookupPublicController::class, 'showIndustry']);
+Route::get('services', [\App\Http\Controllers\Api\Public\ServiceController::class, 'index']);
+Route::get('services/{item}', [\App\Http\Controllers\Api\Public\ServiceController::class, 'show']);
+Route::get('solutions', [\App\Http\Controllers\Api\Public\SolutionController::class, 'index']);
+Route::get('solutions/{item}', [\App\Http\Controllers\Api\Public\SolutionController::class, 'show']);
+Route::get('industries', [\App\Http\Controllers\Api\Public\IndustryController::class, 'index']);
+Route::get('industries/{item}', [\App\Http\Controllers\Api\Public\IndustryController::class, 'show']);
+
+Route::get('contact/services', [\App\Http\Controllers\Api\Public\ContactLookupPublicController::class, 'services']);
+Route::get('contact/services/{item}', [\App\Http\Controllers\Api\Public\ContactLookupPublicController::class, 'showService']);
+Route::get('contact/solutions', [\App\Http\Controllers\Api\Public\ContactLookupPublicController::class, 'solutions']);
+Route::get('contact/solutions/{item}', [\App\Http\Controllers\Api\Public\ContactLookupPublicController::class, 'showSolution']);
+Route::get('contact/industries', [\App\Http\Controllers\Api\Public\ContactLookupPublicController::class, 'industries']);
+Route::get('contact/industries/{item}', [\App\Http\Controllers\Api\Public\ContactLookupPublicController::class, 'showIndustry']);
 
 Route::get('contact/lookups', [\App\Http\Controllers\Api\Public\ContactController::class, 'lookups']);
 Route::post('contact', [\App\Http\Controllers\Api\Public\ContactController::class, 'store']);
