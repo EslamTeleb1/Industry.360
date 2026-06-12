@@ -20,7 +20,7 @@ class AdminPackageController extends Controller
             $serviceId = $request->input('service_id');
             $search = trim((string) $request->input('search', ''));
 
-            $query = Package::orderByDesc('id')->with('serviceable'); // 👈 always load the correct relation
+            $query = Package::orderByDesc('id')->with(['service', 'contactIndustry', 'contactService', 'contactSolution']);
 
             if ($serviceId) {
                 $query->where('service_id', $serviceId)
