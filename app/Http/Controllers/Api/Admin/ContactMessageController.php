@@ -45,7 +45,7 @@ class ContactMessageController extends Controller
         $messages = $query->paginate($perPage);
 
         return $this->successResponse([
-            'contact_messages' => ContactMessageResource::collection($messages->getCollection()),
+             ContactMessageResource::collection($messages->getCollection()),
             'pagination' => [
                 'url' => $messages->url($messages->currentPage()),
                 'current_page' => $messages->currentPage(),
