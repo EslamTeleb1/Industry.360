@@ -39,7 +39,10 @@ class AdminVisionMessageSettingController extends Controller
             'description.ar' => ['nullable', 'string'],
         ]);
 
-        $setting = VisionMessageSetting::query()->firstOrCreate([]);
+        $setting = VisionMessageSetting::query()->firstOrCreate([], [
+            'title' => ['en' => '', 'ar' => ''],
+            'description' => ['en' => '', 'ar' => ''],
+        ]);
 
         if (array_key_exists('title', $data)) {
             $setting->title = $data['title'];

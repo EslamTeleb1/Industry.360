@@ -39,7 +39,10 @@ class AdminTeamSettingController extends Controller
             'description.ar' => ['nullable', 'string'],
         ]);
 
-        $setting = TeamSetting::query()->firstOrCreate([]);
+        $setting = TeamSetting::query()->firstOrCreate([], [
+            'title' => ['en' => '', 'ar' => ''],
+            'description' => ['en' => '', 'ar' => ''],
+        ]);
 
         if (array_key_exists('title', $data)) {
             $setting->title = $data['title'];

@@ -39,7 +39,10 @@ class AdminMethodologySettingController extends Controller
             'description.ar' => ['nullable', 'string'],
         ]);
 
-        $setting = MethodologySetting::query()->firstOrCreate([]);
+        $setting = MethodologySetting::query()->firstOrCreate([], [
+            'title' => ['en' => '', 'ar' => ''],
+            'description' => ['en' => '', 'ar' => ''],
+        ]);
 
         if (array_key_exists('title', $data)) {
             $setting->title = $data['title'];
