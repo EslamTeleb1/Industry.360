@@ -17,7 +17,7 @@ class AdminMethodologySettingController extends Controller
         $setting = MethodologySetting::query()->first();
 
         return $this->successResponse([
-            'setting' => $setting ? new MethodologySettingResource($setting) : null,
+           $setting ? new MethodologySettingResource($setting) : null,
         ], 'Methodology setting retrieved successfully');
     }
 
