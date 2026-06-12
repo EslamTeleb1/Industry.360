@@ -51,4 +51,15 @@ class TeamController extends Controller
             ],
         ], 'Team members retrieved successfully');
     }
+
+    public function show(TeamMember $teamMember)
+    {
+        if (! $teamMember->is_active) {
+            return $this->errorResponse('Team member not found', 404);
+        }
+
+        return $this->successResponse([
+            'team_member' => new TeamMemberResource($teamMember),
+        ], 'Team member retrieved successfully');
+    }
 }

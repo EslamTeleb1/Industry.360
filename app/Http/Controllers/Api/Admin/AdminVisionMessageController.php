@@ -46,10 +46,7 @@ class AdminVisionMessageController extends Controller
 
     public function store(Request $request)
     {
-        $jsonFields = [
-            'title', 'description',
-            'percentage_title_1', 'percentage_title_2', 'percentage_title_3',
-        ];
+        $jsonFields = ['title', 'description'];
         foreach ($jsonFields as $field) {
             if (is_string($request->input($field))) {
                 $request->merge([$field => json_decode($request->input($field), true)]);
@@ -63,25 +60,7 @@ class AdminVisionMessageController extends Controller
             'description' => ['required', 'array'],
             'description.en' => ['required', 'string'],
             'description.ar' => ['required', 'string'],
-            'img' => ['nullable', 'image', 'max:2048'],
-            'percentage_title_1' => ['nullable', 'array'],
-            'percentage_title_1.en' => ['nullable', 'string'],
-            'percentage_title_1.ar' => ['nullable', 'string'],
-            'percentage_value_1' => ['nullable', 'integer', 'min:0', 'max:100'],
-            'percentage_title_2' => ['nullable', 'array'],
-            'percentage_title_2.en' => ['nullable', 'string'],
-            'percentage_title_2.ar' => ['nullable', 'string'],
-            'percentage_value_2' => ['nullable', 'integer', 'min:0', 'max:100'],
-            'percentage_title_3' => ['nullable', 'array'],
-            'percentage_title_3.en' => ['nullable', 'string'],
-            'percentage_title_3.ar' => ['nullable', 'string'],
-            'percentage_value_3' => ['nullable', 'integer', 'min:0', 'max:100'],
-            'is_active' => ['sometimes', 'boolean'],
         ]);
-
-        if ($request->hasFile('img')) {
-            $data['img_path'] = $request->file('img')->store('vision_messages', 'public');
-        }
 
         $item = VisionMessage::create($data);
 
@@ -99,10 +78,7 @@ class AdminVisionMessageController extends Controller
 
     public function update(Request $request, VisionMessage $visionMessage)
     {
-        $jsonFields = [
-            'title', 'description',
-            'percentage_title_1', 'percentage_title_2', 'percentage_title_3',
-        ];
+        $jsonFields = ['title', 'description'];
         foreach ($jsonFields as $field) {
             if (is_string($request->input($field))) {
                 $request->merge([$field => json_decode($request->input($field), true)]);
@@ -116,25 +92,7 @@ class AdminVisionMessageController extends Controller
             'description' => ['sometimes', 'array'],
             'description.en' => ['required_with:description', 'string'],
             'description.ar' => ['required_with:description', 'string'],
-            'img' => ['nullable', 'image', 'max:2048'],
-            'percentage_title_1' => ['nullable', 'array'],
-            'percentage_title_1.en' => ['nullable', 'string'],
-            'percentage_title_1.ar' => ['nullable', 'string'],
-            'percentage_value_1' => ['nullable', 'integer', 'min:0', 'max:100'],
-            'percentage_title_2' => ['nullable', 'array'],
-            'percentage_title_2.en' => ['nullable', 'string'],
-            'percentage_title_2.ar' => ['nullable', 'string'],
-            'percentage_value_2' => ['nullable', 'integer', 'min:0', 'max:100'],
-            'percentage_title_3' => ['nullable', 'array'],
-            'percentage_title_3.en' => ['nullable', 'string'],
-            'percentage_title_3.ar' => ['nullable', 'string'],
-            'percentage_value_3' => ['nullable', 'integer', 'min:0', 'max:100'],
-            'is_active' => ['sometimes', 'boolean'],
         ]);
-
-        if ($request->hasFile('img')) {
-            $data['img_path'] = $request->file('img')->store('vision_messages', 'public');
-        }
 
         $visionMessage->update($data);
 

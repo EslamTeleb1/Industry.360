@@ -54,6 +54,9 @@ Route::get('methodologies', [\App\Http\Controllers\Api\Public\MethodologyControl
 
 Route::get('team/setting', [\App\Http\Controllers\Api\Public\TeamController::class, 'setting']);
 Route::get('team-members', [\App\Http\Controllers\Api\Public\TeamController::class, 'index']);
+Route::get('team-members/{teamMember}', [\App\Http\Controllers\Api\Public\TeamController::class, 'show']);
+
+Route::get('about-us/setting', [\App\Http\Controllers\Api\Public\AboutUsController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('admin/logout', [AdminAuthController::class, 'logout']);
@@ -198,4 +201,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('admin/team-members/{teamMember}', [\App\Http\Controllers\Api\Admin\AdminTeamMemberController::class, 'show']);
     Route::post('admin/team-members/{teamMember}', [\App\Http\Controllers\Api\Admin\AdminTeamMemberController::class, 'update']);
     Route::delete('admin/team-members/{teamMember}', [\App\Http\Controllers\Api\Admin\AdminTeamMemberController::class, 'destroy']);
+
+    // About Us
+    Route::get('admin/about-us/setting', [\App\Http\Controllers\Api\Admin\AdminAboutUsSettingController::class, 'show']);
+    Route::post('admin/about-us/setting', [\App\Http\Controllers\Api\Admin\AdminAboutUsSettingController::class, 'update']);
 });

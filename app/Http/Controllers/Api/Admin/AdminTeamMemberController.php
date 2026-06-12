@@ -46,11 +46,14 @@ class AdminTeamMemberController extends Controller
 
     public function store(Request $request)
     {
-        if (is_string($request->input('title'))) {
-            $request->merge(['title' => json_decode($request->input('title'), true)]);
+        $jsonFields = ['title', 'position', 'description'];
+        foreach ($jsonFields as $field) {
+            if (is_string($request->input($field))) {
+                $request->merge([$field => json_decode($request->input($field), true)]);
+            }
         }
-        if (is_string($request->input('position'))) {
-            $request->merge(['position' => json_decode($request->input('position'), true)]);
+        if (is_string($request->input('social_links'))) {
+            $request->merge(['social_links' => json_decode($request->input('social_links'), true)]);
         }
 
         $data = $request->validate([
@@ -60,7 +63,12 @@ class AdminTeamMemberController extends Controller
             'position' => ['required', 'array'],
             'position.en' => ['required', 'string'],
             'position.ar' => ['required', 'string'],
-            'link' => ['nullable', 'string', 'url'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.ar' => ['nullable', 'string'],
+            'social_links' => ['nullable', 'array'],
+            'social_links.*.platform' => ['required', 'string'],
+            'social_links.*.url' => ['required', 'string', 'url'],
             'img' => ['nullable', 'image', 'max:2048'],
             'is_active' => ['sometimes', 'boolean'],
         ]);
@@ -85,11 +93,14 @@ class AdminTeamMemberController extends Controller
 
     public function update(Request $request, TeamMember $teamMember)
     {
-        if (is_string($request->input('title'))) {
-            $request->merge(['title' => json_decode($request->input('title'), true)]);
+        $jsonFields = ['title', 'position', 'description'];
+        foreach ($jsonFields as $field) {
+            if (is_string($request->input($field))) {
+                $request->merge([$field => json_decode($request->input($field), true)]);
+            }
         }
-        if (is_string($request->input('position'))) {
-            $request->merge(['position' => json_decode($request->input('position'), true)]);
+        if (is_string($request->input('social_links'))) {
+            $request->merge(['social_links' => json_decode($request->input('social_links'), true)]);
         }
 
         $data = $request->validate([
@@ -99,7 +110,12 @@ class AdminTeamMemberController extends Controller
             'position' => ['sometimes', 'array'],
             'position.en' => ['required_with:position', 'string'],
             'position.ar' => ['required_with:position', 'string'],
-            'link' => ['nullable', 'string', 'url'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.ar' => ['nullable', 'string'],
+            'social_links' => ['nullable', 'array'],
+            'social_links.*.platform' => ['required', 'string'],
+            'social_links.*.url' => ['required', 'string', 'url'],
             'img' => ['nullable', 'image', 'max:2048'],
             'is_active' => ['sometimes', 'boolean'],
         ]);

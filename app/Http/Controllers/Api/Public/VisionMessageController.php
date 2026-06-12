@@ -28,7 +28,7 @@ class VisionMessageController extends Controller
         $perPage = max(1, min(100, $request->integer('per_page', 20)));
         $search = trim((string) $request->input('search', ''));
 
-        $query = VisionMessage::where('is_active', true)->orderByDesc('id');
+        $query = VisionMessage::orderByDesc('id');
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {

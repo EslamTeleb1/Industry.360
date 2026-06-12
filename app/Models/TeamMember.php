@@ -12,20 +12,22 @@ class TeamMember extends Model
     protected $fillable = [
         'title',
         'position',
-        'link',
+        'description',
+        'social_links',
         'img_path',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'social_links' => 'array',
     ];
 
     protected $appends = [
         'img_url',
     ];
 
-    public $translatable = ['title', 'position'];
+    public $translatable = ['title', 'position', 'description'];
 
     public function getImgUrlAttribute(): ?string
     {
