@@ -32,6 +32,7 @@ class AdminContactServiceController extends Controller
 
         return $this->successResponse([
             'services' => ContactLookupResource::collection($services->getCollection()),
+            'service_type' => 'contact_service', // hardcoded since it's the only type
             'pagination' => [
                 'current_page' => $services->currentPage(),
                 'last_page' => $services->lastPage(),
