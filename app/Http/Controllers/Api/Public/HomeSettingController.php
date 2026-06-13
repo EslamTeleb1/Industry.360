@@ -15,8 +15,8 @@ class HomeSettingController extends Controller
     {
         $setting = HomeSetting::query()->first();
 
-        return $this->successResponse(
-            $setting ? new HomeSettingResource($setting) : null
-        , 'Home setting retrieved successfully');
+        return $this->successResponse([
+            'setting' => $setting ? new HomeSettingResource($setting) : null,
+        ], 'Home setting retrieved successfully');
     }
 }

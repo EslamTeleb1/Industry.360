@@ -7,7 +7,7 @@ use App\Http\Resources\AboutUsSettingResource;
 use App\Models\AboutUsSetting;
 use App\Traits\ApiResponse;
 
-class AboutUsController extends Controller
+class AboutUsSettingController extends Controller
 {
     use ApiResponse;
 
@@ -15,8 +15,8 @@ class AboutUsController extends Controller
     {
         $setting = AboutUsSetting::query()->first();
 
-        return $this->successResponse([
-            'setting' => $setting ? new AboutUsSettingResource($setting) : null,
-        ], 'About Us setting retrieved successfully');
+        return $this->successResponse(
+            $setting ? new AboutUsSettingResource($setting) : null
+        , 'About Us setting retrieved successfully');
     }
 }
