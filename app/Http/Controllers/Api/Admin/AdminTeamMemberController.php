@@ -46,7 +46,7 @@ class AdminTeamMemberController extends Controller
 
     public function store(Request $request)
     {
-        $jsonFields = ['title', 'position', 'description'];
+        $jsonFields = ['title', 'position', 'description', 'tag'];
         foreach ($jsonFields as $field) {
             if (is_string($request->input($field))) {
                 $request->merge([$field => json_decode($request->input($field), true)]);
@@ -63,7 +63,9 @@ class AdminTeamMemberController extends Controller
             'position' => ['required', 'array'],
             'position.en' => ['required', 'string'],
             'position.ar' => ['required', 'string'],
-            'tag' => ['nullable', 'string', 'max:100'],
+            'tag' => ['nullable', 'array'],
+            'tag.en' => ['nullable', 'string', 'max:100'],
+            'tag.ar' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'array'],
             'description.en' => ['nullable', 'string'],
             'description.ar' => ['nullable', 'string'],
@@ -94,7 +96,7 @@ class AdminTeamMemberController extends Controller
 
     public function update(Request $request, TeamMember $teamMember)
     {
-        $jsonFields = ['title', 'position', 'description'];
+        $jsonFields = ['title', 'position', 'description', 'tag'];
         foreach ($jsonFields as $field) {
             if (is_string($request->input($field))) {
                 $request->merge([$field => json_decode($request->input($field), true)]);
@@ -111,7 +113,9 @@ class AdminTeamMemberController extends Controller
             'position' => ['sometimes', 'array'],
             'position.en' => ['required_with:position', 'string'],
             'position.ar' => ['required_with:position', 'string'],
-            'tag' => ['nullable', 'string', 'max:100'],
+            'tag' => ['nullable', 'array'],
+            'tag.en' => ['nullable', 'string', 'max:100'],
+            'tag.ar' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'array'],
             'description.en' => ['nullable', 'string'],
             'description.ar' => ['nullable', 'string'],

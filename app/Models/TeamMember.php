@@ -28,7 +28,7 @@ class TeamMember extends Model
         'img_url',
     ];
 
-    public $translatable = ['title', 'position', 'description'];
+    public $translatable = ['title', 'position', 'description', 'tag'];
 
     public function getImgUrlAttribute(): ?string
     {

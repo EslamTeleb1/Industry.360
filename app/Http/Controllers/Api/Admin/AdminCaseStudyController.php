@@ -55,7 +55,7 @@ class AdminCaseStudyController extends Controller
             $request->merge(['description' => json_decode($request->input('description'), true)]);
         }
         if (is_string($request->input('tags'))) {
-            $request->merge(['tags' => json_decode($request->input('tags'), true)]);
+            $request->merge(['tags' => json_decode($request->input('s'), true)]);
         }
 
         $data = $request->validate([
