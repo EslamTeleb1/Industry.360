@@ -12,6 +12,7 @@ class TeamMember extends Model
     protected $fillable = [
         'title',
         'position',
+        'tag',
         'description',
         'social_links',
         'img_path',

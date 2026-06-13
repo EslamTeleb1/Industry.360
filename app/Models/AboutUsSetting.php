@@ -12,6 +12,8 @@ class AboutUsSetting extends Model
     protected $fillable = [
         'title',
         'description',
+        'sub_main_title',
+        'sub_main_description',
         'sub_title',
         'sub_description',
         'percentage_title_1',
@@ -34,6 +36,8 @@ class AboutUsSetting extends Model
     public $translatable = [
         'title',
         'description',
+        'sub_main_title',
+        'sub_main_description',
         'sub_title',
         'sub_description',
         'percentage_title_1',

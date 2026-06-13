@@ -35,6 +35,7 @@ Route::get('contact/industries/{item}', [\App\Http\Controllers\Api\Public\Contac
 
 Route::get('contact/lookups', [\App\Http\Controllers\Api\Public\ContactController::class, 'lookups']);
 Route::post('contact', [\App\Http\Controllers\Api\Public\ContactController::class, 'store']);
+Route::get('contact-us/setting', [\App\Http\Controllers\Api\Public\ContactUsSettingController::class, 'show']);
 
 Route::get('blogs/categories', [\App\Http\Controllers\Api\Public\BlogController::class, 'categories']);
 Route::get('blogs', [\App\Http\Controllers\Api\Public\BlogController::class, 'index']);
@@ -56,11 +57,12 @@ Route::get('team/setting', [\App\Http\Controllers\Api\Public\TeamController::cla
 Route::get('team-members', [\App\Http\Controllers\Api\Public\TeamController::class, 'index']);
 Route::get('team-members/{teamMember}', [\App\Http\Controllers\Api\Public\TeamController::class, 'show']);
 
+Route::get('home/setting', [\App\Http\Controllers\Api\Public\HomeSettingController::class, 'show']);
 Route::get('about-us/setting', [\App\Http\Controllers\Api\Public\AboutUsController::class, 'show']);
-
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('admin/logout', [AdminAuthController::class, 'logout']);
     Route::get('admin/me', [AdminAuthController::class, 'me']);
+    Route::get('admin/stats', [\App\Http\Controllers\Api\Admin\AdminStatsController::class, 'index']);
 
     Route::get('admin/roles', [AdminRolePermissionController::class, 'roles']);
     Route::get('admin/permissions', [AdminRolePermissionController::class, 'permissions']);
@@ -205,4 +207,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // About Us
     Route::get('admin/about-us/setting', [\App\Http\Controllers\Api\Admin\AdminAboutUsSettingController::class, 'show']);
     Route::post('admin/about-us/setting', [\App\Http\Controllers\Api\Admin\AdminAboutUsSettingController::class, 'update']);
+
+    // Home Setting
+    Route::get('admin/home/setting', [\App\Http\Controllers\Api\Admin\AdminHomeSettingController::class, 'show']);
+    Route::post('admin/home/setting', [\App\Http\Controllers\Api\Admin\AdminHomeSettingController::class, 'update']);
+
+    // Contact Us Setting
+    Route::get('admin/contact-us/setting', [\App\Http\Controllers\Api\Admin\AdminContactUsSettingController::class, 'show']);
+    Route::post('admin/contact-us/setting', [\App\Http\Controllers\Api\Admin\AdminContactUsSettingController::class, 'update']);
 });

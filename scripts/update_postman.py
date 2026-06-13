@@ -1,414 +1,391 @@
 #!/usr/bin/env python3
-"""
-Updates the Postman collection to reflect:
-1. Team Member: replace `link` with `description` + `social_links`, add public show endpoint
-2. Vision Message: remove img/percentage/is_active fields from create/update
-3. About Us: add all new admin + public endpoints (with examples)
-"""
+"""Full Postman collection updater – adds body + response example to every endpoint."""
+import json, sys, os
+sys.path.insert(0, os.path.dirname(__file__))
+from postman_data import *
 
-import json, copy, sys
+INPUT = OUTPUT = "postman_collection.json"
 
-INPUT  = "postman_collection.json"
-OUTPUT = "postman_collection.json"
+with open(INPUT, encoding="utf-8") as f:
+    col = json.load(f)
 
-with open(INPUT, "r", encoding="utf-8") as f:
-    collection = json.load(f)
+items = col["item"]
 
-items = collection["item"]
+# ── helpers ──────────────────────────────────────────────────────────────────
 
-# ── helpers ─────────────────────────────────────────────────────────────────
-
-def auth_header():
-    return [{"key": "Authorization", "value": "Bearer {{token}}"}]
-
-def make_get(name, url_raw, *, auth=True, variables=None, query=None, example_body=None):
-    url = {"raw": url_raw}
-    if variables:
-        url["variable"] = variables
-    if query:
-        url["query"] = query
-    req = {
-        "name": name,
-        "request": {
-            "method": "GET",
-            "header": auth_header() if auth else [],
-            "url": url,
-        },
-        "response": [],
-    }
-    if example_body:
-        req["response"] = [{
-            "name": f"Example Response",
-            "originalRequest": {"method": "GET", "url": url},
-            "status": "OK",
-            "code": 200,
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": json.dumps(example_body),
-        }]
-    return req
-
-def make_post_json(name, url_raw, body_dict, *, auth=True, variables=None, example_body=None):
-    url = {"raw": url_raw}
-    if variables:
-        url["variable"] = variables
-    req = {
-        "name": name,
-        "request": {
-            "method": "POST",
-            "header": (auth_header() + [{"key": "Content-Type", "value": "application/json"}]) if auth else [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": json.dumps(body_dict, ensure_ascii=False, indent=2)},
-            "url": url,
-        },
-        "response": [],
-    }
-    if example_body:
-        req["response"] = [{
-            "name": "Example Response",
-            "originalRequest": {"method": "POST", "url": url},
-            "status": "OK",
-            "code": 200,
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": json.dumps(example_body),
-        }]
-    return req
-
-def make_post_formdata(name, url_raw, formdata, *, auth=True, variables=None, example_body=None):
-    url = {"raw": url_raw}
-    if variables:
-        url["variable"] = variables
-    req = {
-        "name": name,
-        "request": {
-            "method": "POST",
-            "header": auth_header() if auth else [],
-            "body": {"mode": "formdata", "formdata": formdata},
-            "url": url,
-        },
-        "response": [],
-    }
-    if example_body:
-        req["response"] = [{
-            "name": "Example Response",
-            "originalRequest": {"method": "POST", "url": url},
-            "status": "OK",
-            "code": 200,
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": json.dumps(example_body),
-        }]
-    return req
-
-def make_delete(name, url_raw, variables=None):
-    url = {"raw": url_raw}
-    if variables:
-        url["variable"] = variables
+def ex(method, url_raw, body_dict, resp_dict, status=200, code=200):
+    """Build a saved example (request + response pair)."""
+    orig = {"method": method, "url": {"raw": url_raw}}
+    if body_dict and method != "GET":
+        orig["body"] = body_dict
     return {
-        "name": name,
-        "request": {
-            "method": "DELETE",
-            "header": auth_header(),
-            "url": url,
-        },
-        "response": [],
+        "name": "Example Response",
+        "originalRequest": orig,
+        "status": "OK" if status == 200 else "Created",
+        "code": code,
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": json.dumps(resp_dict, ensure_ascii=False),
     }
 
-def text(k, v):
-    return {"key": k, "value": v, "type": "text"}
+def jbody(d):
+    return {"mode": "raw", "raw": json.dumps(d, ensure_ascii=False, indent=2)}
 
-def file_field(k):
-    return {"key": k, "type": "file", "src": ""}
+def fbody(fields):
+    return {"mode": "formdata", "formdata": [{"key": k, "value": v, "type": "text"} if v != "__file__" else {"key": k, "type": "file", "src": ""} for k, v in fields]}
 
-# ── example payloads ─────────────────────────────────────────────────────────
+def set_item(name, body=None, resp=None, code=200):
+    for it in items:
+        if it.get("name") == name:
+            if body is not None:
+                it["request"]["body"] = body
+            if resp is not None:
+                url_raw = it["request"]["url"].get("raw", "")
+                method  = it["request"].get("method", "GET")
+                it["response"] = [ex(method, url_raw, body, resp, code, code)]
+            return True
+    return False
 
-TEAM_MEMBER_EXAMPLE = {
-    "success": True,
-    "message": "Team member retrieved successfully",
-    "data": {
-        "team_member": {
-            "id": 1,
-            "title": "John Doe",
-            "title_en": "John Doe",
-            "title_ar": "جون دو",
-            "position": "CEO",
-            "position_en": "CEO",
-            "position_ar": "الرئيس التنفيذي",
-            "description": "An experienced leader with 15+ years in the tech industry.",
-            "description_en": "An experienced leader with 15+ years in the tech industry.",
-            "description_ar": "قائد متمرس بأكثر من 15 عامًا في مجال التقنية.",
-            "social_links": [
-                {"platform": "linkedin", "url": "https://linkedin.com/in/johndoe"},
-                {"platform": "twitter", "url": "https://twitter.com/johndoe"},
-            ],
-            "img_path": "team_members/photo.jpg",
-            "img_url": "http://localhost:8000/storage/team_members/photo.jpg",
-            "is_active": True,
-            "created_at": "2026-06-12 10:00:00",
-            "updated_at": "2026-06-12 10:00:00",
-        }
-    },
-    "meta": {},
-    "timestamp": "2026-06-12T10:00:00+00:00",
-}
+def insert_after(after_name, new_item):
+    for i, it in enumerate(items):
+        if it.get("name") == after_name:
+            items.insert(i + 1, new_item)
+            return
+    items.append(new_item)
 
-VISION_MESSAGE_EXAMPLE = {
-    "success": True,
-    "message": "Vision message retrieved successfully",
-    "data": {
-        "vision_message": {
-            "id": 1,
-            "title": "Our Vision",
-            "title_en": "Our Vision",
-            "title_ar": "رؤيتنا",
-            "description": "Leading digital transformation across the region.",
-            "description_en": "Leading digital transformation across the region.",
-            "description_ar": "قيادة التحول الرقمي في المنطقة.",
-            "created_at": "2026-06-12 10:00:00",
-            "updated_at": "2026-06-12 10:00:00",
-        }
-    },
-    "meta": {},
-    "timestamp": "2026-06-12T10:00:00+00:00",
-}
+def make_item(name, method, url_raw, body=None, resp=None, auth=True, variables=None, query=None, code=200):
+    hdr = [{"key": "Authorization", "value": "Bearer {{token}}"}] if auth else []
+    if body and method != "GET" and "formdata" not in str(body):
+        hdr.append({"key": "Content-Type", "value": "application/json"})
+    url = {"raw": url_raw}
+    if variables: url["variable"] = variables
+    if query:     url["query"]    = query
+    req = {"method": method, "header": hdr, "url": url}
+    if body: req["body"] = body
+    response = [ex(method, url_raw, body, resp, code, code)] if resp else []
+    return {"name": name, "request": req, "response": response}
 
-ABOUT_US_EXAMPLE = {
-    "success": True,
-    "message": "About Us setting retrieved successfully",
-    "data": {
-        "setting": {
-            "id": 1,
-            "title": "About Industry360",
-            "title_en": "About Industry360",
-            "title_ar": "عن إندستري 360",
-            "description": "We are a leading technology company.",
-            "description_en": "We are a leading technology company.",
-            "description_ar": "نحن شركة تقنية رائدة.",
-            "sub_title": "What We Achieved",
-            "sub_title_en": "What We Achieved",
-            "sub_title_ar": "ما حققناه",
-            "sub_description": "Our numbers speak for themselves.",
-            "sub_description_en": "Our numbers speak for themselves.",
-            "sub_description_ar": "أرقامنا تتحدث عن نفسها.",
-            "percentage_title_1": "Customer Satisfaction",
-            "percentage_title_1_en": "Customer Satisfaction",
-            "percentage_title_1_ar": "رضا العملاء",
-            "percentage_description_1": "Clients who rate us 5 stars",
-            "percentage_description_1_en": "Clients who rate us 5 stars",
-            "percentage_description_1_ar": "عملاء يمنحوننا 5 نجوم",
-            "percentage_value_1": 95,
-            "percentage_title_2": "Project Success",
-            "percentage_title_2_en": "Project Success",
-            "percentage_title_2_ar": "نجاح المشاريع",
-            "percentage_description_2": "Projects delivered on time",
-            "percentage_description_2_en": "Projects delivered on time",
-            "percentage_description_2_ar": "مشاريع تُسلَّم في الوقت المحدد",
-            "percentage_value_2": 88,
-            "percentage_title_3": "Growth Rate",
-            "percentage_title_3_en": "Growth Rate",
-            "percentage_title_3_ar": "معدل النمو",
-            "percentage_description_3": "Year-over-year revenue growth",
-            "percentage_description_3_en": "Year-over-year revenue growth",
-            "percentage_description_3_ar": "نمو الإيرادات على أساس سنوي",
-            "percentage_value_3": 72,
-            "created_at": "2026-06-12 10:00:00",
-            "updated_at": "2026-06-12 10:00:00",
-        }
-    },
-    "meta": {},
-    "timestamp": "2026-06-12T10:00:00+00:00",
-}
+# ══════════════════════════════════════════════════════════════════════════════
+# AUTH
+# ══════════════════════════════════════════════════════════════════════════════
+set_item("Admin Me",         resp=ok("admin", ADMIN_ME, "Admin retrieved successfully"))
+set_item("Get Roles",        resp=ok("roles", ["admin","editor","viewer"], "Roles retrieved"))
+set_item("Get Permissions",  resp=ok("permissions", ["view-dashboard","view-users","edit-users"], "Permissions retrieved"))
+set_item("Assign Roles to User",
+    body=jbody({"roles":["admin","editor"]}),
+    resp=ok("message","Roles assigned successfully"))
+set_item("Assign Permissions to User",
+    body=jbody({"permissions":["edit-users"]}),
+    resp=ok("message","Permissions assigned successfully"))
 
-# ── 1. Add `teamMember` variable if missing ──────────────────────────────────
-var_keys = [v["key"] for v in collection.get("variable", [])]
-if "teamMember" not in var_keys:
-    collection["variable"].append({"key": "teamMember", "value": "1"})
+# ══════════════════════════════════════════════════════════════════════════════
+# CAREERS – Departments
+# ══════════════════════════════════════════════════════════════════════════════
+set_item("Create Department (Admin)",
+    resp=ok("department", DEPT, "Department created successfully"), code=201)
+set_item("Update Department (Admin)",
+    resp=ok("department", DEPT, "Department updated successfully"))
+set_item("Delete Department (Admin)",
+    resp=deleted("Department deleted successfully"))
 
-# ── 2. Update Vision Message - Create (remove percentage/img/is_active) ──────
-for item in items:
-    if item.get("name") == "Create Vision Message (Admin)":
-        item["request"]["body"] = {
-            "mode": "formdata",
-            "formdata": [
-                text("title[en]", "Our Vision"),
-                text("title[ar]", "رؤيتنا"),
-                text("description[en]", "Leading digital transformation across the region."),
-                text("description[ar]", "قيادة التحول الرقمي في المنطقة."),
-            ],
-        }
-        item["response"] = [{
-            "name": "Example Response",
-            "originalRequest": {"method": "POST", "url": {"raw": "{{base_url}}/api/admin/vision-messages"}},
-            "status": "Created",
-            "code": 201,
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": json.dumps(VISION_MESSAGE_EXAMPLE),
-        }]
-        print("✓ Updated: Create Vision Message (Admin)")
+# Locations
+set_item("List Locations (Admin)",
+    resp=list_ok("locations", [LOCATION], "Locations retrieved successfully"))
+set_item("Create Location (Admin)",
+    resp=ok("location", LOCATION, "Location created successfully"), code=201)
+set_item("Update Location (Admin)",
+    resp=ok("location", LOCATION, "Location updated successfully"))
+set_item("Delete Location (Admin)",
+    resp=deleted("Location deleted successfully"))
 
-# ── 3. Update Vision Message - Update (remove percentage/img) ────────────────
-    if item.get("name") == "Update Vision Message (Admin)":
-        item["request"]["body"] = {
-            "mode": "formdata",
-            "formdata": [
-                text("title[en]", "Our Vision Updated"),
-                text("title[ar]", "رؤيتنا محدثة"),
-                text("description[en]", "Driving innovation forward."),
-                text("description[ar]", "دفع الابتكار إلى الأمام."),
-            ],
-        }
-        item["response"] = [{
-            "name": "Example Response",
-            "originalRequest": {"method": "POST", "url": {"raw": "{{base_url}}/api/admin/vision-messages/:visionMessage", "variable": [{"key": "visionMessage", "value": "{{visionMessage}}"}]}},
-            "status": "OK",
-            "code": 200,
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": json.dumps(VISION_MESSAGE_EXAMPLE),
-        }]
-        print("✓ Updated: Update Vision Message (Admin)")
+# Job Types
+set_item("Create Job Type (Admin)",
+    resp=ok("job_type", JOB_TYPE, "Job type created successfully"), code=201)
+set_item("Update Job Type (Admin)",
+    resp=ok("job_type", JOB_TYPE, "Job type updated successfully"))
+set_item("Delete Job Type (Admin)",
+    resp=deleted("Job type deleted successfully"))
 
-# ── 4. Update Team Member - Create (link → description + social_links) ───────
-    if item.get("name") == "Create Team Member (Admin)":
-        item["request"]["body"] = {
-            "mode": "formdata",
-            "formdata": [
-                text("title[en]", "John Doe"),
-                text("title[ar]", "جون دو"),
-                text("position[en]", "CEO"),
-                text("position[ar]", "الرئيس التنفيذي"),
-                text("description[en]", "An experienced leader with 15+ years in the tech industry."),
-                text("description[ar]", "قائد متمرس بأكثر من 15 عامًا في مجال التقنية."),
-                text("social_links[0][platform]", "linkedin"),
-                text("social_links[0][url]", "https://linkedin.com/in/johndoe"),
-                text("social_links[1][platform]", "twitter"),
-                text("social_links[1][url]", "https://twitter.com/johndoe"),
-                file_field("img"),
-                text("is_active", "1"),
-            ],
-        }
-        item["response"] = [{
-            "name": "Example Response",
-            "originalRequest": {"method": "POST", "url": {"raw": "{{base_url}}/api/admin/team-members"}},
-            "status": "Created",
-            "code": 201,
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": json.dumps(TEAM_MEMBER_EXAMPLE),
-        }]
-        print("✓ Updated: Create Team Member (Admin)")
+# Jobs
+set_item("Create Job (Admin)",
+    resp=ok("job", JOB, "Job created successfully"), code=201)
+set_item("Get Job (Admin)",
+    resp=ok("job", JOB, "Job retrieved successfully"))
+set_item("Update Job (Admin)",
+    resp=ok("job", JOB, "Job updated successfully"))
+set_item("Delete Job (Admin)",
+    resp=deleted("Job deleted successfully"))
+set_item("Get Job (Public)",
+    resp=ok("job", JOB, "Job retrieved successfully"))
 
-# ── 5. Update Team Member - Update (link → description + social_links) ───────
-    if item.get("name") == "Update Team Member (Admin)":
-        item["request"]["body"] = {
-            "mode": "formdata",
-            "formdata": [
-                text("title[en]", "John Doe Updated"),
-                text("title[ar]", "جون دو محدث"),
-                text("position[en]", "CTO"),
-                text("position[ar]", "المدير التقني"),
-                text("description[en]", "Now leading our engineering division."),
-                text("description[ar]", "يقود الآن قسم الهندسة لدينا."),
-                text("social_links[0][platform]", "linkedin"),
-                text("social_links[0][url]", "https://linkedin.com/in/johndoe-updated"),
-                file_field("img"),
-            ],
-        }
-        item["response"] = [{
-            "name": "Example Response",
-            "originalRequest": {"method": "POST", "url": {"raw": "{{base_url}}/api/admin/team-members/:teamMember", "variable": [{"key": "teamMember", "value": "{{teamMember}}"}]}},
-            "status": "OK",
-            "code": 200,
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": json.dumps(TEAM_MEMBER_EXAMPLE),
-        }]
-        print("✓ Updated: Update Team Member (Admin)")
+# Career Page
+set_item("Get Admin Career Page",
+    resp=ok("page", CAREER_PAGE, "Career page retrieved successfully"))
+set_item("Update Admin Career Page (banner optional)",
+    resp=ok("page", CAREER_PAGE, "Career page updated successfully"))
+set_item("Public Career Page",
+    resp=ok("page", CAREER_PAGE, "Career page retrieved successfully"))
 
-# ── 6. Add example to Get Team Member (Admin) if missing ────────────────────
-    if item.get("name") == "Get Team Member (Admin)" and not item.get("response"):
-        item["response"] = [{
-            "name": "Example Response",
-            "originalRequest": {"method": "GET", "url": {"raw": "{{base_url}}/api/admin/team-members/:teamMember", "variable": [{"key": "teamMember", "value": "{{teamMember}}"}]}},
-            "status": "OK",
-            "code": 200,
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": json.dumps(TEAM_MEMBER_EXAMPLE),
-        }]
-        print("✓ Updated: Get Team Member (Admin) - added example")
+# Applications
+set_item("List Applications (Admin)",
+    resp=list_ok("applications", [APPLICATION], "Applications retrieved successfully"))
 
-    if item.get("name") == "Get Vision Message (Admin)" and not item.get("response"):
-        item["response"] = [{
-            "name": "Example Response",
-            "originalRequest": {"method": "GET", "url": {"raw": "{{base_url}}/api/admin/vision-messages/:visionMessage"}},
-            "status": "OK", "code": 200,
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": json.dumps(VISION_MESSAGE_EXAMPLE),
-        }]
-        print("✓ Updated: Get Vision Message (Admin) - added example")
+# ══════════════════════════════════════════════════════════════════════════════
+# SERVICES / SOLUTIONS / INDUSTRIES
+# ══════════════════════════════════════════════════════════════════════════════
+set_item("Get Service (Public)",  resp=ok("service",  SERVICE,  "Service retrieved successfully"))
+set_item("List Solutions (Public)",resp=list_ok("solutions",[SOLUTION],"Solutions retrieved successfully"))
+set_item("Get Solution (Public)", resp=ok("solution", SOLUTION, "Solution retrieved successfully"))
 
-# ── 7. Find insertion index - after "List Team Members (Public)" ─────────────
-public_team_idx = next((i for i, it in enumerate(items) if it.get("name") == "List Team Members (Public)"), None)
+set_item("List Services (Admin)", resp=list_ok("services",[SERVICE],"Services retrieved successfully"))
+set_item("Create Service (Admin)",
+    resp=ok("service",SERVICE,"Service created successfully"), code=201)
+set_item("Get Service (Admin)",   resp=ok("service",  SERVICE,  "Service retrieved successfully"))
+set_item("Update Service (Admin)",resp=ok("service",  SERVICE,  "Service updated successfully"))
+set_item("Delete Service (Admin)",resp=deleted("Service deleted successfully"))
 
-if public_team_idx is not None:
-    # Check if show endpoint already exists
-    show_exists = any(it.get("name") == "Get Team Member (Public)" for it in items)
-    if not show_exists:
-        show_item = make_get(
-            "Get Team Member (Public)",
-            "{{base_url}}/api/team-members/:teamMember",
-            auth=False,
-            variables=[{"key": "teamMember", "value": "{{teamMember}}"}],
-            example_body=TEAM_MEMBER_EXAMPLE,
-        )
-        items.insert(public_team_idx + 1, show_item)
-        print("✓ Inserted: Get Team Member (Public)")
+# ══════════════════════════════════════════════════════════════════════════════
+# BLOGS
+# ══════════════════════════════════════════════════════════════════════════════
+for nm, data, msg in [
+    ("List Blog Categories (Public)",  list_ok("categories",[BLOG_CAT],"Categories retrieved"), None),
+    ("List Blogs (Public)",            list_ok("blogs",[BLOG],"Blogs retrieved"),               None),
+    ("Get Blog (Public)",              ok("blog",BLOG,"Blog retrieved"),                         None),
+    ("List Blog Categories (Admin)",   list_ok("categories",[BLOG_CAT],"Categories retrieved"), None),
+    ("Create Blog Category (Admin)",   ok("category",BLOG_CAT,"Blog category created"),         201),
+    ("Get Blog Category (Admin)",      ok("category",BLOG_CAT,"Blog category retrieved"),       None),
+    ("Update Blog Category (Admin)",   ok("category",BLOG_CAT,"Blog category updated"),         None),
+    ("Delete Blog Category (Admin)",   deleted("Blog category deleted"),                         None),
+    ("List Blogs (Admin)",             list_ok("blogs",[BLOG],"Blogs retrieved"),               None),
+    ("Create Blog (Admin)",            ok("blog",BLOG,"Blog created"),                           201),
+    ("Get Blog (Admin)",               ok("blog",BLOG,"Blog retrieved"),                         None),
+    ("Update Blog (Admin)",            ok("blog",BLOG,"Blog updated"),                           None),
+    ("Delete Blog (Admin)",            deleted("Blog deleted"),                                   None),
+]:
+    set_item(nm, resp=data, code=msg or 200)
 
-# ── 8. Add About Us public endpoint (after Show Team Member public) ──────────
-public_about_exists = any(it.get("name") == "Get About Us Setting (Public)" for it in items)
-if not public_about_exists:
-    # Insert after show team member public
-    show_team_idx = next((i for i, it in enumerate(items) if it.get("name") == "Get Team Member (Public)"), public_team_idx + 1)
-    about_public = make_get(
-        "Get About Us Setting (Public)",
+# ══════════════════════════════════════════════════════════════════════════════
+# FAQs
+# ══════════════════════════════════════════════════════════════════════════════
+for nm, data, code in [
+    ("List FAQ Categories (Public)", list_ok("categories",[FAQ_CAT],"FAQ categories retrieved"), 200),
+    ("List FAQs (Public)",           list_ok("faqs",[FAQ],"FAQs retrieved"),                     200),
+    ("List FAQ Categories (Admin)",  list_ok("categories",[FAQ_CAT],"FAQ categories retrieved"), 200),
+    ("Create FAQ Category (Admin)",  ok("category",FAQ_CAT,"FAQ category created"),              201),
+    ("Get FAQ Category (Admin)",     ok("category",FAQ_CAT,"FAQ category retrieved"),            200),
+    ("Update FAQ Category (Admin)",  ok("category",FAQ_CAT,"FAQ category updated"),              200),
+    ("Delete FAQ Category (Admin)",  deleted("FAQ category deleted"),                             200),
+    ("List FAQs (Admin)",            list_ok("faqs",[FAQ],"FAQs retrieved"),                     200),
+    ("Create FAQ (Admin)",           ok("faq",FAQ,"FAQ created"),                                201),
+    ("Get FAQ (Admin)",              ok("faq",FAQ,"FAQ retrieved"),                              200),
+    ("Update FAQ (Admin)",           ok("faq",FAQ,"FAQ updated"),                                200),
+    ("Delete FAQ (Admin)",           deleted("FAQ deleted"),                                      200),
+]:
+    set_item(nm, resp=data, code=code)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PARTNERS / CASE STUDIES
+# ══════════════════════════════════════════════════════════════════════════════
+for nm, data, code in [
+    ("List Partners (Public)",       list_ok("partners",[PARTNER],"Partners retrieved"),         200),
+    ("List Case Studies (Public)",   list_ok("case_studies",[CASE_STUDY],"Case studies retrieved"),200),
+    ("Get Case Study (Public)",      ok("case_study",CASE_STUDY,"Case study retrieved"),         200),
+    ("List Partners (Admin)",        list_ok("partners",[PARTNER],"Partners retrieved"),         200),
+    ("Create Partner (Admin)",       ok("partner",PARTNER,"Partner created"),                    201),
+    ("Get Partner (Admin)",          ok("partner",PARTNER,"Partner retrieved"),                  200),
+    ("Update Partner (Admin)",       ok("partner",PARTNER,"Partner updated"),                    200),
+    ("Delete Partner (Admin)",       deleted("Partner deleted"),                                  200),
+    ("List Case Studies (Admin)",    list_ok("case_studies",[CASE_STUDY],"Case studies retrieved"),200),
+    ("Create Case Study (Admin)",    ok("case_study",CASE_STUDY,"Case study created"),           201),
+    ("Get Case Study (Admin)",       ok("case_study",CASE_STUDY,"Case study retrieved"),         200),
+    ("Update Case Study (Admin)",    ok("case_study",CASE_STUDY,"Case study updated"),           200),
+    ("Delete Case Study (Admin)",    deleted("Case study deleted"),                               200),
+]:
+    set_item(nm, resp=data, code=code)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CONTACT LOOKUPS
+# ══════════════════════════════════════════════════════════════════════════════
+for nm, data, code in [
+    ("List Contact Industries (Admin)",  list_ok("industries",[CONTACT_IND],"Industries retrieved"), 200),
+    ("Create Contact Industry (Admin)",  ok("industry",CONTACT_IND,"Industry created"),              201),
+    ("Get Contact Industry (Admin)",     ok("industry",CONTACT_IND,"Industry retrieved"),            200),
+    ("Update Contact Industry (Admin)",  ok("industry",CONTACT_IND,"Industry updated"),              200),
+    ("Delete Contact Industry (Admin)",  deleted("Industry deleted"),                                 200),
+    ("List Contact Services (Admin)",    list_ok("services",[CONTACT_SVC],"Services retrieved"),     200),
+    ("Create Contact Service (Admin)",   ok("service",CONTACT_SVC,"Service created"),                201),
+    ("Get Contact Service (Admin)",      ok("service",CONTACT_SVC,"Service retrieved"),              200),
+    ("Update Contact Service (Admin)",   ok("service",CONTACT_SVC,"Service updated"),                200),
+    ("Delete Contact Service (Admin)",   deleted("Service deleted"),                                  200),
+    ("List Contact Solutions (Admin)",   list_ok("solutions",[CONTACT_SOL],"Solutions retrieved"),   200),
+    ("Create Contact Solution (Admin)",  ok("solution",CONTACT_SOL,"Solution created"),              201),
+    ("Get Contact Solution (Admin)",     ok("solution",CONTACT_SOL,"Solution retrieved"),            200),
+    ("Update Contact Solution (Admin)",  ok("solution",CONTACT_SOL,"Solution updated"),              200),
+    ("Delete Contact Solution (Admin)",  deleted("Solution deleted"),                                 200),
+]:
+    set_item(nm, resp=data, code=code)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# VISION & MESSAGE
+# ══════════════════════════════════════════════════════════════════════════════
+set_item("Get Vision & Message Setting (Public)",
+    resp=ok("setting", VISION_SETTING, "Vision & Message setting retrieved successfully"))
+set_item("List Vision Messages (Public)",
+    resp=list_ok("vision_messages", [VISION_MSG], "Vision messages retrieved successfully"))
+set_item("Get Vision & Message Setting (Admin)",
+    resp=ok("setting", VISION_SETTING, "Vision & Message setting retrieved successfully"))
+set_item("Update Vision & Message Setting (Admin)",
+    body=jbody({"title":{"en":"Our Vision & Message","ar":"رؤيتنا ورسالتنا"},"description":{"en":"Driving innovation forward","ar":"دفع الابتكار إلى الأمام"}}),
+    resp=ok("setting", VISION_SETTING, "Vision & Message setting updated successfully"))
+set_item("List Vision Messages (Admin)",
+    resp=list_ok("vision_messages", [VISION_MSG], "Vision messages retrieved successfully"))
+
+# Create Vision Message – clean body (no img/percentage/is_active)
+set_item("Create Vision Message (Admin)",
+    body=fbody([("title[en]","Our Vision"),("title[ar]","رؤيتنا"),("description[en]","Leading digital transformation"),("description[ar]","قيادة التحول الرقمي")]),
+    resp=ok("vision_message", VISION_MSG, "Vision message created successfully"), code=201)
+
+set_item("Update Vision Message (Admin)",
+    body=fbody([("title[en]","Our Vision Updated"),("title[ar]","رؤيتنا محدثة"),("description[en]","Driving innovation forward"),("description[ar]","دفع الابتكار")]),
+    resp=ok("vision_message", VISION_MSG, "Vision message updated successfully"))
+
+set_item("Get Vision Message (Admin)",
+    resp=ok("vision_message", VISION_MSG, "Vision message retrieved successfully"))
+set_item("Delete Vision Message (Admin)",
+    resp=deleted("Vision message deleted successfully"))
+
+# ══════════════════════════════════════════════════════════════════════════════
+# METHODOLOGY
+# ══════════════════════════════════════════════════════════════════════════════
+set_item("Get Methodology Setting (Public)",
+    resp=ok("setting", METHODOLOGY_SETTING, "Methodology setting retrieved successfully"))
+set_item("List Methodologies (Public)",
+    resp=list_ok("methodologies", [METHODOLOGY], "Methodologies retrieved successfully"))
+set_item("Get Methodology Setting (Admin)",
+    resp=ok("setting", METHODOLOGY_SETTING, "Methodology setting retrieved successfully"))
+set_item("Update Methodology Setting (Admin)",
+    body=jbody({"title":{"en":"Our Methodology","ar":"منهجيتنا"},"description":{"en":"How we work","ar":"كيف نعمل"}}),
+    resp=ok("setting", METHODOLOGY_SETTING, "Methodology setting updated successfully"))
+set_item("List Methodologies (Admin)",
+    resp=list_ok("methodologies", [METHODOLOGY], "Methodologies retrieved successfully"))
+set_item("Create Methodology (Admin)",
+    resp=ok("methodology", METHODOLOGY, "Methodology created successfully"), code=201)
+set_item("Get Methodology (Admin)",
+    resp=ok("methodology", METHODOLOGY, "Methodology retrieved successfully"))
+set_item("Update Methodology (Admin)",
+    resp=ok("methodology", METHODOLOGY, "Methodology updated successfully"))
+set_item("Delete Methodology (Admin)",
+    resp=deleted("Methodology deleted successfully"))
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TEAM
+# ══════════════════════════════════════════════════════════════════════════════
+set_item("Get Team Setting (Public)",
+    resp=ok("setting", TEAM_SETTING, "Team setting retrieved successfully"))
+set_item("List Team Members (Public)",
+    resp=list_ok("team_members", [TEAM_MEMBER], "Team members retrieved successfully"))
+set_item("Get Team Setting (Admin)",
+    resp=ok("setting", TEAM_SETTING, "Team setting retrieved successfully"))
+set_item("Update Team Setting (Admin)",
+    body=jbody({"title":{"en":"Our Team","ar":"فريقنا"},"description":{"en":"Meet the team","ar":"تعرف على الفريق"}}),
+    resp=ok("setting", TEAM_SETTING, "Team setting updated successfully"))
+set_item("List Team Members (Admin)",
+    resp=list_ok("team_members", [TEAM_MEMBER], "Team members retrieved successfully"))
+
+TEAM_FORMDATA = [
+    ("title[en]","John Doe"),("title[ar]","جون دو"),
+    ("position[en]","CEO"),("position[ar]","الرئيس التنفيذي"),
+    ("description[en]","Experienced leader with 15+ years."),
+    ("description[ar]","قائد متمرس بأكثر من 15 عامًا."),
+    ("social_links[0][platform]","linkedin"),
+    ("social_links[0][url]","https://linkedin.com/in/johndoe"),
+    ("social_links[1][platform]","twitter"),
+    ("social_links[1][url]","https://twitter.com/johndoe"),
+    ("img","__file__"),("is_active","1"),
+]
+set_item("Create Team Member (Admin)",
+    body=fbody(TEAM_FORMDATA),
+    resp=ok("team_member", TEAM_MEMBER, "Team member created successfully"), code=201)
+set_item("Get Team Member (Admin)",
+    resp=ok("team_member", TEAM_MEMBER, "Team member retrieved successfully"))
+set_item("Update Team Member (Admin)",
+    body=fbody(TEAM_FORMDATA[:-2] + [("img","__file__")]),
+    resp=ok("team_member", TEAM_MEMBER, "Team member updated successfully"))
+set_item("Delete Team Member (Admin)",
+    resp=deleted("Team member deleted successfully"))
+
+# ── Public show team member (insert if missing) ──────────────────────────────
+if not any(it["name"] == "Get Team Member (Public)" for it in items):
+    insert_after("List Team Members (Public)", make_item(
+        "Get Team Member (Public)", "GET",
+        "{{base_url}}/api/team-members/:teamMember",
+        auth=False,
+        variables=[{"key":"teamMember","value":"{{teamMember}}"}],
+        resp=ok("team_member", TEAM_MEMBER, "Team member retrieved successfully"),
+    ))
+else:
+    set_item("Get Team Member (Public)",
+        resp=ok("team_member", TEAM_MEMBER, "Team member retrieved successfully"))
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ABOUT US (insert if missing)
+# ══════════════════════════════════════════════════════════════════════════════
+if not any(it["name"] == "Get About Us Setting (Public)" for it in items):
+    insert_after("Get Team Member (Public)", make_item(
+        "Get About Us Setting (Public)", "GET",
         "{{base_url}}/api/about-us/setting",
         auth=False,
-        example_body=ABOUT_US_EXAMPLE,
-    )
-    items.insert(show_team_idx + 1, about_public)
-    print("✓ Inserted: Get About Us Setting (Public)")
+        resp=ok("setting", ABOUT_US, "About Us setting retrieved successfully"),
+    ))
+else:
+    set_item("Get About Us Setting (Public)",
+        resp=ok("setting", ABOUT_US, "About Us setting retrieved successfully"))
 
-# ── 9. Add About Us admin endpoints (at end, before closing) ─────────────────
-admin_about_exists = any(it.get("name") == "Get About Us Setting (Admin)" for it in items)
-if not admin_about_exists:
-    about_admin_get = make_get(
-        "Get About Us Setting (Admin)",
+ABOUT_BODY = {
+    "title":{"en":"About Industry360","ar":"عن إندستري 360"},
+    "description":{"en":"We are a leading technology company.","ar":"نحن شركة تقنية رائدة."},
+    "sub_title":{"en":"What We Achieved","ar":"ما حققناه"},
+    "sub_description":{"en":"Our numbers speak for themselves.","ar":"أرقامنا تتحدث عن نفسها."},
+    "percentage_title_1":{"en":"Customer Satisfaction","ar":"رضا العملاء"},
+    "percentage_description_1":{"en":"Clients who rate us 5 stars","ar":"عملاء يمنحوننا 5 نجوم"},
+    "percentage_value_1":95,
+    "percentage_title_2":{"en":"Project Success","ar":"نجاح المشاريع"},
+    "percentage_description_2":{"en":"On-time delivery","ar":"التسليم في الوقت المحدد"},
+    "percentage_value_2":88,
+    "percentage_title_3":{"en":"Growth Rate","ar":"معدل النمو"},
+    "percentage_description_3":{"en":"Year-over-year growth","ar":"النمو السنوي"},
+    "percentage_value_3":72,
+}
+if not any(it["name"] == "Get About Us Setting (Admin)" for it in items):
+    items.append(make_item("Get About Us Setting (Admin)", "GET",
         "{{base_url}}/api/admin/about-us/setting",
-        auth=True,
-        example_body=ABOUT_US_EXAMPLE,
-    )
-    about_admin_update = make_post_json(
-        "Update About Us Setting (Admin)",
+        resp=ok("setting", ABOUT_US, "About Us setting retrieved successfully")))
+    items.append(make_item("Update About Us Setting (Admin)", "POST",
         "{{base_url}}/api/admin/about-us/setting",
-        {
-            "title": {"en": "About Industry360", "ar": "عن إندستري 360"},
-            "description": {"en": "We are a leading technology company.", "ar": "نحن شركة تقنية رائدة."},
-            "sub_title": {"en": "What We Achieved", "ar": "ما حققناه"},
-            "sub_description": {"en": "Our numbers speak for themselves.", "ar": "أرقامنا تتحدث عن نفسها."},
-            "percentage_title_1": {"en": "Customer Satisfaction", "ar": "رضا العملاء"},
-            "percentage_description_1": {"en": "Clients who rate us 5 stars", "ar": "عملاء يمنحوننا 5 نجوم"},
-            "percentage_value_1": 95,
-            "percentage_title_2": {"en": "Project Success", "ar": "نجاح المشاريع"},
-            "percentage_description_2": {"en": "Projects delivered on time", "ar": "مشاريع تُسلَّم في الوقت المحدد"},
-            "percentage_value_2": 88,
-            "percentage_title_3": {"en": "Growth Rate", "ar": "معدل النمو"},
-            "percentage_description_3": {"en": "Year-over-year revenue growth", "ar": "نمو الإيرادات على أساس سنوي"},
-            "percentage_value_3": 72,
-        },
-        auth=True,
-        example_body=ABOUT_US_EXAMPLE,
-    )
-    items.append(about_admin_get)
-    items.append(about_admin_update)
-    print("✓ Inserted: Get About Us Setting (Admin)")
-    print("✓ Inserted: Update About Us Setting (Admin)")
+        body=jbody(ABOUT_BODY),
+        resp=ok("setting", ABOUT_US, "About Us setting updated successfully")))
+else:
+    set_item("Get About Us Setting (Admin)",
+        resp=ok("setting", ABOUT_US, "About Us setting retrieved successfully"))
+    set_item("Update About Us Setting (Admin)",
+        body=jbody(ABOUT_BODY),
+        resp=ok("setting", ABOUT_US, "About Us setting updated successfully"))
 
-# ── save ─────────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# PACKAGES
+# ══════════════════════════════════════════════════════════════════════════════
+for nm, data, code in [
+    ("List Packages (Admin)",   list_ok("packages",[PACKAGE],"Packages retrieved"), 200),
+    ("Create Package (Admin)",  ok("package",PACKAGE,"Package created"),             201),
+    ("Get Package (Admin)",     ok("package",PACKAGE,"Package retrieved"),           200),
+    ("Update Package (Admin)",  ok("package",PACKAGE,"Package updated"),             200),
+    ("Delete Package (Admin)",  deleted("Package deleted"),                           200),
+]:
+    set_item(nm, resp=data, code=code)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Save
+# ══════════════════════════════════════════════════════════════════════════════
 with open(OUTPUT, "w", encoding="utf-8") as f:
-    json.dump(collection, f, ensure_ascii=False, indent=4)
+    json.dump(col, f, ensure_ascii=False, indent=4)
 
-print(f"\n✅ Done — saved to {OUTPUT}")
+print(f"✅ Done — {len(items)} items in collection")

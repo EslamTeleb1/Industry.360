@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             ContactServiceSeeder::class,
             ContactSolutionSeeder::class,
             PackageSeeder::class,
+            HomeSettingSeeder::class,
         ]);
 
         // User::factory(10)->create();

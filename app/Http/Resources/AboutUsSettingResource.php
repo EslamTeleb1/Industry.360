@@ -22,6 +22,14 @@ class AboutUsSettingResource extends JsonResource
             'description_en' => $this->getTranslation('description', 'en', false),
             'description_ar' => $this->getTranslation('description', 'ar', false),
 
+            // Sub-main section
+            'sub_main_title' => $this->translatedValue('sub_main_title'),
+            'sub_main_title_en' => $this->getTranslation('sub_main_title', 'en', false),
+            'sub_main_title_ar' => $this->getTranslation('sub_main_title', 'ar', false),
+            'sub_main_description' => $this->translatedValue('sub_main_description'),
+            'sub_main_description_en' => $this->getTranslation('sub_main_description', 'en', false),
+            'sub_main_description_ar' => $this->getTranslation('sub_main_description', 'ar', false),
+
             // Sub-about section
             'sub_title' => $this->translatedValue('sub_title'),
             'sub_title_en' => $this->getTranslation('sub_title', 'en', false),

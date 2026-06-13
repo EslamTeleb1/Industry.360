@@ -25,6 +25,7 @@ class AdminAboutUsSettingController extends Controller
     {
         $jsonFields = [
             'title', 'description',
+            'sub_main_title', 'sub_main_description',
             'sub_title', 'sub_description',
             'percentage_title_1', 'percentage_description_1',
             'percentage_title_2', 'percentage_description_2',
@@ -52,6 +53,14 @@ class AdminAboutUsSettingController extends Controller
             'sub_description' => ['nullable', 'array'],
             'sub_description.en' => ['nullable', 'string'],
             'sub_description.ar' => ['nullable', 'string'],
+
+            // Sub-main section
+            'sub_main_title' => ['nullable', 'array'],
+            'sub_main_title.en' => ['nullable', 'string'],
+            'sub_main_title.ar' => ['nullable', 'string'],
+            'sub_main_description' => ['nullable', 'array'],
+            'sub_main_description.en' => ['nullable', 'string'],
+            'sub_main_description.ar' => ['nullable', 'string'],
 
             // Percentage items
             'percentage_title_1' => ['nullable', 'array'],
@@ -84,6 +93,7 @@ class AdminAboutUsSettingController extends Controller
         // Update all translatable fields individually to preserve existing translations
         $translatableFields = [
             'title', 'description', 'sub_title', 'sub_description',
+            'sub_main_title', 'sub_main_description',
             'percentage_title_1', 'percentage_description_1',
             'percentage_title_2', 'percentage_description_2',
             'percentage_title_3', 'percentage_description_3',
