@@ -58,7 +58,7 @@ Route::get('team-members', [\App\Http\Controllers\Api\Public\TeamController::cla
 Route::get('team-members/{teamMember}', [\App\Http\Controllers\Api\Public\TeamController::class, 'show']);
 
 Route::get('home/setting', [\App\Http\Controllers\Api\Public\HomeSettingController::class, 'show']);
-Route::get('about-us/setting', [\App\Http\Controllers\Api\Public\AboutUsController::class, 'show']);
+Route::get('about-us/setting', [\App\Http\Controllers\Api\Public\AboutUsSettingController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('admin/logout', [AdminAuthController::class, 'logout']);
     Route::get('admin/me', [AdminAuthController::class, 'me']);
