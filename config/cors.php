@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://www.industry361.sa'],
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
