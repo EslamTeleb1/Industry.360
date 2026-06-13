@@ -19,7 +19,7 @@ trait HasTranslatableAttributes
         return null;
     }
 
-    protected function translatedValue(string $key): ?string
+    protected function translatedValue(string $key)
     {
         $locale = App::getLocale();
         $allTranslations = $this->translations($key);

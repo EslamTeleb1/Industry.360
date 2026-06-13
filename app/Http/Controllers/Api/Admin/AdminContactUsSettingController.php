@@ -32,8 +32,12 @@ class AdminContactUsSettingController extends Controller
 
         $data = $request->validate([
             'title' => ['nullable', 'array'],
-            'title.en' => ['nullable', 'string'],
-            'title.ar' => ['nullable', 'string'],
+            'title.en' => ['nullable', 'array', 'size:3'],
+            'title.en.*.text' => ['required_with:title.en', 'string'],
+            'title.en.*.style' => ['required_with:title.en', 'string'],
+            'title.ar' => ['nullable', 'array', 'size:3'],
+            'title.ar.*.text' => ['required_with:title.ar', 'string'],
+            'title.ar.*.style' => ['required_with:title.ar', 'string'],
             'description' => ['nullable', 'array'],
             'description.en' => ['nullable', 'string'],
             'description.ar' => ['nullable', 'string'],
