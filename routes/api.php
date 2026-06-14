@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Admin\CareerPageController;
 use App\Http\Controllers\Api\Public\CareerApplicationController;
 use App\Http\Controllers\Api\Public\CareerPublicController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\FooterController;
 
 Route::post('admin/login', [AdminAuthController::class, 'login']);
 
@@ -59,6 +60,7 @@ Route::get('team-members/{teamMember}', [\App\Http\Controllers\Api\Public\TeamCo
 
 Route::get('home/setting', [\App\Http\Controllers\Api\Public\HomeSettingController::class, 'show']);
 Route::get('about-us/setting', [\App\Http\Controllers\Api\Public\AboutUsSettingController::class, 'show']);
+Route::get('footer', [FooterController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('admin/logout', [AdminAuthController::class, 'logout']);
     Route::get('admin/me', [AdminAuthController::class, 'me']);
@@ -215,4 +217,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Contact Us Setting
     Route::get('admin/contact-us/setting', [\App\Http\Controllers\Api\Admin\AdminContactUsSettingController::class, 'show']);
     Route::post('admin/contact-us/setting', [\App\Http\Controllers\Api\Admin\AdminContactUsSettingController::class, 'update']);
+
+    // Admin footer management
+    Route::get('admin/footer', [FooterController::class, 'index']);
+    Route::post('admin/footer', [FooterController::class, 'store']);
+    Route::post('admin/footer/{id}', [FooterController::class, 'update']);
+    Route::delete('admin/footer/{id}', [FooterController::class, 'destroy']);
 });

@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             ContactSolutionSeeder::class,
             PackageSeeder::class,
             HomeSettingSeeder::class,
+            FooterSeeder::class,
         ]);
 
         // User::factory(10)->create();
