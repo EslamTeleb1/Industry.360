@@ -59,6 +59,10 @@ Route::get('team-members', [\App\Http\Controllers\Api\Public\TeamController::cla
 Route::get('team-members/{teamMember}', [\App\Http\Controllers\Api\Public\TeamController::class, 'show']);
 
 Route::get('home/setting', [\App\Http\Controllers\Api\Public\HomeSettingController::class, 'show']);
+Route::get('home/sections', [\App\Http\Controllers\Api\Public\HomeSectionController::class, 'index']);
+Route::get('home/sections/{section}', [\App\Http\Controllers\Api\Public\HomeSectionController::class, 'show']);
+Route::get('sections', [\App\Http\Controllers\Api\Public\SectionController::class, 'index']);
+Route::get('sections/{section}', [\App\Http\Controllers\Api\Public\SectionController::class, 'show']);
 Route::get('about-us/setting', [\App\Http\Controllers\Api\Public\AboutUsSettingController::class, 'show']);
 Route::get('footer', [FooterController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
@@ -213,6 +217,19 @@ Route::middleware('auth:sanctum')->group(function () {
     // Home Setting
     Route::get('admin/home/setting', [\App\Http\Controllers\Api\Admin\AdminHomeSettingController::class, 'show']);
     Route::post('admin/home/setting', [\App\Http\Controllers\Api\Admin\AdminHomeSettingController::class, 'update']);
+    // Home sections (admin)
+    Route::get('admin/home/sections', [\App\Http\Controllers\Api\Admin\AdminHomeSectionController::class, 'index']);
+    Route::post('admin/home/sections', [\App\Http\Controllers\Api\Admin\AdminHomeSectionController::class, 'store']);
+    Route::get('admin/home/sections/{section}', [\App\Http\Controllers\Api\Admin\AdminHomeSectionController::class, 'show']);
+    Route::post('admin/home/sections/{section}', [\App\Http\Controllers\Api\Admin\AdminHomeSectionController::class, 'update']);
+    Route::delete('admin/home/sections/{section}', [\App\Http\Controllers\Api\Admin\AdminHomeSectionController::class, 'destroy']);
+
+    // Sections (admin)
+    Route::get('admin/sections', [\App\Http\Controllers\Api\Admin\AdminSectionController::class, 'index']);
+    Route::post('admin/sections', [\App\Http\Controllers\Api\Admin\AdminSectionController::class, 'store']);
+    Route::get('admin/sections/{section}', [\App\Http\Controllers\Api\Admin\AdminSectionController::class, 'show']);
+    Route::post('admin/sections/{section}', [\App\Http\Controllers\Api\Admin\AdminSectionController::class, 'update']);
+    Route::delete('admin/sections/{section}', [\App\Http\Controllers\Api\Admin\AdminSectionController::class, 'destroy']);
 
     // Contact Us Setting
     Route::get('admin/contact-us/setting', [\App\Http\Controllers\Api\Admin\AdminContactUsSettingController::class, 'show']);

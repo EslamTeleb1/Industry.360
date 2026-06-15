@@ -5,14 +5,20 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\FooterItem;
+use App\Models\HomeSetting;
 
 class FooterController extends Controller
 {
     public function index()
     {
+        $homeSetting = HomeSetting::query()->first();
+
         return response()->json([
             'social_links' => FooterItem::socialLinks(),
             'images' => FooterItem::imagesList(),
+            'home_description' => $homeSetting ? $homeSetting->getTranslation('description', app()->getLocale(), false) : null,
+            'home_description_en' => $homeSetting ? $homeSetting->getTranslation('description', 'en', false) : null,
+            'home_description_ar' => $homeSetting ? $homeSetting->getTranslation('description', 'ar', false) : null,
         ]);
     }
 

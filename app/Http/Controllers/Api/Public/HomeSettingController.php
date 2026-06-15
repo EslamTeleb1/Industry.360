@@ -13,7 +13,7 @@ class HomeSettingController extends Controller
 
     public function show()
     {
-        $setting = HomeSetting::query()->first();
+        $setting = HomeSetting::query()->with('sections')->first();
 
         return $this->successResponse([
             'setting' => $setting ? new HomeSettingResource($setting) : null,
