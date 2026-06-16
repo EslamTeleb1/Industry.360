@@ -13,10 +13,16 @@ class HomeSectionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'title' => $this->translatedValue('sub_title'),
+            'title_en' => $this->getTranslation('sub_title', 'en', false),
+            'title_ar' => $this->getTranslation('sub_title', 'ar', false),
             'sub_title' => $this->translatedValue('sub_title'),
             'sub_title_en' => $this->getTranslation('sub_title', 'en', false),
             'sub_title_ar' => $this->getTranslation('sub_title', 'ar', false),
 
+            'description' => $this->translatedValue('sub_description'),
+            'description_en' => $this->getTranslation('sub_description', 'en', false),
+            'description_ar' => $this->getTranslation('sub_description', 'ar', false),
             'sub_description' => $this->translatedValue('sub_description'),
             'sub_description_en' => $this->getTranslation('sub_description', 'en', false),
             'sub_description_ar' => $this->getTranslation('sub_description', 'ar', false),

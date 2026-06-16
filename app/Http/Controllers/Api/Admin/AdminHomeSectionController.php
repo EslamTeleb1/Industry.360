@@ -25,6 +25,7 @@ class AdminHomeSectionController extends Controller
     public function store(Request $request)
     {
         $jsonFields = [
+            'title', 'description',
             'sub_title', 'sub_description',
             'percentage_title_1', 'percentage_description_1',
             'percentage_title_2', 'percentage_description_2',
@@ -39,9 +40,24 @@ class AdminHomeSectionController extends Controller
         $data = $request->validate([
             'home_setting_id' => ['nullable', 'integer', 'exists:home_settings,id'],
 
+            'title' => ['nullable', 'array'],
+            'title.en' => ['nullable', 'array', 'size:3'],
+            'title.en.*.text' => ['required_with:title.en', 'string'],
+            'title.en.*.style' => ['required_with:title.en', 'string'],
+            'title.ar' => ['nullable', 'array', 'size:3'],
+            'title.ar.*.text' => ['required_with:title.ar', 'string'],
+            'title.ar.*.style' => ['required_with:title.ar', 'string'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.ar' => ['nullable', 'string'],
+
             'sub_title' => ['nullable', 'array'],
-            'sub_title.en' => ['nullable', 'string'],
-            'sub_title.ar' => ['nullable', 'string'],
+            'sub_title.en' => ['nullable', 'array', 'size:3'],
+            'sub_title.en.*.text' => ['required_with:sub_title.en', 'string'],
+            'sub_title.en.*.style' => ['required_with:sub_title.en', 'string'],
+            'sub_title.ar' => ['nullable', 'array', 'size:3'],
+            'sub_title.ar.*.text' => ['required_with:sub_title.ar', 'string'],
+            'sub_title.ar.*.style' => ['required_with:sub_title.ar', 'string'],
             'sub_description' => ['nullable', 'array'],
             'sub_description.en' => ['nullable', 'string'],
             'sub_description.ar' => ['nullable', 'string'],
@@ -76,7 +92,19 @@ class AdminHomeSectionController extends Controller
         $section = new HomeSection();
         $section->home_setting_id = $data['home_setting_id'] ?? null;
 
-        foreach (['sub_title', 'sub_description', 'percentage_title_1', 'percentage_description_1', 'percentage_title_2', 'percentage_description_2', 'percentage_title_3', 'percentage_description_3'] as $tfield) {
+        if (array_key_exists('title', $data)) {
+            $section->sub_title = $data['title'];
+        } elseif (array_key_exists('sub_title', $data)) {
+            $section->sub_title = $data['sub_title'];
+        }
+
+        if (array_key_exists('description', $data)) {
+            $section->sub_description = $data['description'];
+        } elseif (array_key_exists('sub_description', $data)) {
+            $section->sub_description = $data['sub_description'];
+        }
+
+        foreach (['percentage_title_1', 'percentage_description_1', 'percentage_title_2', 'percentage_description_2', 'percentage_title_3', 'percentage_description_3'] as $tfield) {
             if (array_key_exists($tfield, $data)) {
                 $section->$tfield = $data[$tfield];
             }
@@ -110,6 +138,7 @@ class AdminHomeSectionController extends Controller
     public function update(Request $request, HomeSection $section)
     {
         $jsonFields = [
+            'title', 'description',
             'sub_title', 'sub_description',
             'percentage_title_1', 'percentage_description_1',
             'percentage_title_2', 'percentage_description_2',
@@ -124,9 +153,24 @@ class AdminHomeSectionController extends Controller
         $data = $request->validate([
             'home_setting_id' => ['nullable', 'integer', 'exists:home_settings,id'],
 
+            'title' => ['nullable', 'array'],
+            'title.en' => ['nullable', 'array', 'size:3'],
+            'title.en.*.text' => ['required_with:title.en', 'string'],
+            'title.en.*.style' => ['required_with:title.en', 'string'],
+            'title.ar' => ['nullable', 'array', 'size:3'],
+            'title.ar.*.text' => ['required_with:title.ar', 'string'],
+            'title.ar.*.style' => ['required_with:title.ar', 'string'],
+            'description' => ['nullable', 'array'],
+            'description.en' => ['nullable', 'string'],
+            'description.ar' => ['nullable', 'string'],
+
             'sub_title' => ['nullable', 'array'],
-            'sub_title.en' => ['nullable', 'string'],
-            'sub_title.ar' => ['nullable', 'string'],
+            'sub_title.en' => ['nullable', 'array', 'size:3'],
+            'sub_title.en.*.text' => ['required_with:sub_title.en', 'string'],
+            'sub_title.en.*.style' => ['required_with:sub_title.en', 'string'],
+            'sub_title.ar' => ['nullable', 'array', 'size:3'],
+            'sub_title.ar.*.text' => ['required_with:sub_title.ar', 'string'],
+            'sub_title.ar.*.style' => ['required_with:sub_title.ar', 'string'],
             'sub_description' => ['nullable', 'array'],
             'sub_description.en' => ['nullable', 'string'],
             'sub_description.ar' => ['nullable', 'string'],
@@ -162,7 +206,19 @@ class AdminHomeSectionController extends Controller
             $section->home_setting_id = $data['home_setting_id'];
         }
 
-        foreach (['sub_title', 'sub_description', 'percentage_title_1', 'percentage_description_1', 'percentage_title_2', 'percentage_description_2', 'percentage_title_3', 'percentage_description_3'] as $tfield) {
+        if (array_key_exists('title', $data)) {
+            $section->sub_title = $data['title'];
+        } elseif (array_key_exists('sub_title', $data)) {
+            $section->sub_title = $data['sub_title'];
+        }
+
+        if (array_key_exists('description', $data)) {
+            $section->sub_description = $data['description'];
+        } elseif (array_key_exists('sub_description', $data)) {
+            $section->sub_description = $data['sub_description'];
+        }
+
+        foreach (['percentage_title_1', 'percentage_description_1', 'percentage_title_2', 'percentage_description_2', 'percentage_title_3', 'percentage_description_3'] as $tfield) {
             if (array_key_exists($tfield, $data)) {
                 $section->$tfield = $data[$tfield];
             }
