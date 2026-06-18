@@ -35,7 +35,7 @@ class FooterController extends Controller
             'label' => 'nullable|string|max:255',
             'url' => 'nullable|url|max:1000',
             'image_path' => 'nullable|string|max:1000',
-            'image' => 'nullable|image|max:4096',
+            'image' => 'sometimes|image|mimes:jpg,jpeg,png,gif,webp,svg',
             'order' => 'nullable|integer',
             'active' => 'nullable|boolean',
         ]);
@@ -64,7 +64,7 @@ class FooterController extends Controller
             'label' => 'nullable|string|max:255',
             'url' => 'nullable|url|max:1000',
             'image_path' => 'nullable|string|max:1000',
-            'image' => 'nullable|image|max:4096',
+            'image' => 'sometimes|image|mimes:jpg,jpeg,png,gif,webp,svg',
             'order' => 'nullable|integer',
             'active' => 'nullable|boolean',
         ]);
