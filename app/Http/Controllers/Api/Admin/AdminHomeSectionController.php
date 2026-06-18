@@ -26,10 +26,9 @@ class AdminHomeSectionController extends Controller
     {
         $jsonFields = [
             'title', 'description',
-            'sub_title', 'sub_description',
-            'percentage_title_1', 'percentage_description_1',
-            'percentage_title_2', 'percentage_description_2',
-            'percentage_title_3', 'percentage_description_3',
+            'percentage_title_1',
+            'percentage_title_2',
+            'percentage_title_3',
         ];
         foreach ($jsonFields as $field) {
             if (is_string($request->input($field))) {
@@ -51,39 +50,19 @@ class AdminHomeSectionController extends Controller
             'description.en' => ['nullable', 'string'],
             'description.ar' => ['nullable', 'string'],
 
-            'sub_title' => ['nullable', 'array'],
-            'sub_title.en' => ['nullable', 'array', 'size:3'],
-            'sub_title.en.*.text' => ['required_with:sub_title.en', 'string'],
-            'sub_title.en.*.style' => ['required_with:sub_title.en', 'string'],
-            'sub_title.ar' => ['nullable', 'array', 'size:3'],
-            'sub_title.ar.*.text' => ['required_with:sub_title.ar', 'string'],
-            'sub_title.ar.*.style' => ['required_with:sub_title.ar', 'string'],
-            'sub_description' => ['nullable', 'array'],
-            'sub_description.en' => ['nullable', 'string'],
-            'sub_description.ar' => ['nullable', 'string'],
-
             'percentage_title_1' => ['nullable', 'array'],
             'percentage_title_1.en' => ['nullable', 'string'],
             'percentage_title_1.ar' => ['nullable', 'string'],
-            'percentage_description_1' => ['nullable', 'array'],
-            'percentage_description_1.en' => ['nullable', 'string'],
-            'percentage_description_1.ar' => ['nullable', 'string'],
             'percentage_value_1' => ['nullable', 'integer', 'min:0', 'max:100'],
 
             'percentage_title_2' => ['nullable', 'array'],
             'percentage_title_2.en' => ['nullable', 'string'],
             'percentage_title_2.ar' => ['nullable', 'string'],
-            'percentage_description_2' => ['nullable', 'array'],
-            'percentage_description_2.en' => ['nullable', 'string'],
-            'percentage_description_2.ar' => ['nullable', 'string'],
             'percentage_value_2' => ['nullable', 'integer', 'min:0', 'max:100'],
 
             'percentage_title_3' => ['nullable', 'array'],
             'percentage_title_3.en' => ['nullable', 'string'],
             'percentage_title_3.ar' => ['nullable', 'string'],
-            'percentage_description_3' => ['nullable', 'array'],
-            'percentage_description_3.en' => ['nullable', 'string'],
-            'percentage_description_3.ar' => ['nullable', 'string'],
             'percentage_value_3' => ['nullable', 'integer', 'min:0', 'max:100'],
 
             'img' => ['nullable', 'file', 'image', 'max:5120'],
@@ -94,17 +73,13 @@ class AdminHomeSectionController extends Controller
 
         if (array_key_exists('title', $data)) {
             $section->sub_title = $data['title'];
-        } elseif (array_key_exists('sub_title', $data)) {
-            $section->sub_title = $data['sub_title'];
         }
 
         if (array_key_exists('description', $data)) {
             $section->sub_description = $data['description'];
-        } elseif (array_key_exists('sub_description', $data)) {
-            $section->sub_description = $data['sub_description'];
         }
 
-        foreach (['percentage_title_1', 'percentage_description_1', 'percentage_title_2', 'percentage_description_2', 'percentage_title_3', 'percentage_description_3'] as $tfield) {
+        foreach (['percentage_title_1', 'percentage_title_2', 'percentage_title_3'] as $tfield) {
             if (array_key_exists($tfield, $data)) {
                 $section->$tfield = $data[$tfield];
             }
@@ -139,10 +114,9 @@ class AdminHomeSectionController extends Controller
     {
         $jsonFields = [
             'title', 'description',
-            'sub_title', 'sub_description',
-            'percentage_title_1', 'percentage_description_1',
-            'percentage_title_2', 'percentage_description_2',
-            'percentage_title_3', 'percentage_description_3',
+            'percentage_title_1',
+            'percentage_title_2',
+            'percentage_title_3',
         ];
         foreach ($jsonFields as $field) {
             if (is_string($request->input($field))) {
@@ -164,39 +138,19 @@ class AdminHomeSectionController extends Controller
             'description.en' => ['nullable', 'string'],
             'description.ar' => ['nullable', 'string'],
 
-            'sub_title' => ['nullable', 'array'],
-            'sub_title.en' => ['nullable', 'array', 'size:3'],
-            'sub_title.en.*.text' => ['required_with:sub_title.en', 'string'],
-            'sub_title.en.*.style' => ['required_with:sub_title.en', 'string'],
-            'sub_title.ar' => ['nullable', 'array', 'size:3'],
-            'sub_title.ar.*.text' => ['required_with:sub_title.ar', 'string'],
-            'sub_title.ar.*.style' => ['required_with:sub_title.ar', 'string'],
-            'sub_description' => ['nullable', 'array'],
-            'sub_description.en' => ['nullable', 'string'],
-            'sub_description.ar' => ['nullable', 'string'],
-
             'percentage_title_1' => ['nullable', 'array'],
             'percentage_title_1.en' => ['nullable', 'string'],
             'percentage_title_1.ar' => ['nullable', 'string'],
-            'percentage_description_1' => ['nullable', 'array'],
-            'percentage_description_1.en' => ['nullable', 'string'],
-            'percentage_description_1.ar' => ['nullable', 'string'],
             'percentage_value_1' => ['nullable', 'integer', 'min:0', 'max:100'],
 
             'percentage_title_2' => ['nullable', 'array'],
             'percentage_title_2.en' => ['nullable', 'string'],
             'percentage_title_2.ar' => ['nullable', 'string'],
-            'percentage_description_2' => ['nullable', 'array'],
-            'percentage_description_2.en' => ['nullable', 'string'],
-            'percentage_description_2.ar' => ['nullable', 'string'],
             'percentage_value_2' => ['nullable', 'integer', 'min:0', 'max:100'],
 
             'percentage_title_3' => ['nullable', 'array'],
             'percentage_title_3.en' => ['nullable', 'string'],
             'percentage_title_3.ar' => ['nullable', 'string'],
-            'percentage_description_3' => ['nullable', 'array'],
-            'percentage_description_3.en' => ['nullable', 'string'],
-            'percentage_description_3.ar' => ['nullable', 'string'],
             'percentage_value_3' => ['nullable', 'integer', 'min:0', 'max:100'],
 
             'img' => ['nullable', 'file', 'image', 'max:5120'],
@@ -208,17 +162,13 @@ class AdminHomeSectionController extends Controller
 
         if (array_key_exists('title', $data)) {
             $section->sub_title = $data['title'];
-        } elseif (array_key_exists('sub_title', $data)) {
-            $section->sub_title = $data['sub_title'];
         }
 
         if (array_key_exists('description', $data)) {
             $section->sub_description = $data['description'];
-        } elseif (array_key_exists('sub_description', $data)) {
-            $section->sub_description = $data['sub_description'];
         }
 
-        foreach (['percentage_title_1', 'percentage_description_1', 'percentage_title_2', 'percentage_description_2', 'percentage_title_3', 'percentage_description_3'] as $tfield) {
+        foreach (['percentage_title_1', 'percentage_title_2', 'percentage_title_3'] as $tfield) {
             if (array_key_exists($tfield, $data)) {
                 $section->$tfield = $data[$tfield];
             }

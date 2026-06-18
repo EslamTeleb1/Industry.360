@@ -14,13 +14,10 @@ class HomeSection extends Model
         'sub_title',
         'sub_description',
         'percentage_title_1',
-        'percentage_description_1',
         'percentage_value_1',
         'percentage_title_2',
-        'percentage_description_2',
         'percentage_value_2',
         'percentage_title_3',
-        'percentage_description_3',
         'percentage_value_3',
         'img',
     ];
@@ -39,11 +36,8 @@ class HomeSection extends Model
         'sub_title',
         'sub_description',
         'percentage_title_1',
-        'percentage_description_1',
         'percentage_title_2',
-        'percentage_description_2',
         'percentage_title_3',
-        'percentage_description_3',
     ];
 
     public function homeSetting()

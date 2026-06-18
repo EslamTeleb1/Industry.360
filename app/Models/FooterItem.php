@@ -15,6 +15,10 @@ class FooterItem extends Model
         'active' => 'boolean',
     ];
 
+    protected $appends = [
+        'image_url',
+    ];
+
     public static function socialLinks()
     {
         return static::where('type', 'social')

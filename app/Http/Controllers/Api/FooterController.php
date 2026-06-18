@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\FooterItem;
 use App\Models\HomeSetting;
@@ -10,18 +11,20 @@ use Illuminate\Support\Facades\Storage;
 
 class FooterController extends Controller
 {
+    use ApiResponse;
+
     public function index()
     {
         $homeSetting = HomeSetting::query()->first();
 
-        return response()->json([
+        return $this->successResponse([
             'items' => FooterItem::allItems(),
-            'social_links' => FooterItem::socialLinks(),
-            'images' => FooterItem::imagesList(),
+            // 'social_links' => FooterItem::socialLinks(),
+            // 'images' => FooterItem::imagesList(),
             'home_description' => $homeSetting ? $homeSetting->getTranslation('description', app()->getLocale(), false) : null,
             'home_description_en' => $homeSetting ? $homeSetting->getTranslation('description', 'en', false) : null,
             'home_description_ar' => $homeSetting ? $homeSetting->getTranslation('description', 'ar', false) : null,
-        ]);
+        ], 'Footer retrieved successfully');
     }
 
     public function store(Request $request)
@@ -46,7 +49,9 @@ class FooterController extends Controller
 
         $item = FooterItem::create($data);
 
-        return response()->json(['item' => $item], 201);
+        return $this->createdResponse([
+            'item' => $item,
+        ], 'Footer item created successfully');
     }
 
     public function update(Request $request, $id)
@@ -78,13 +83,16 @@ class FooterController extends Controller
 
         $item->update($data);
 
-        return response()->json(['item' => $item]);
+        return $this->successResponse([
+            'item' => $item,
+        ], 'Footer item updated successfully');
     }
 
     public function destroy($id)
     {
         $item = FooterItem::findOrFail($id);
         $item->delete();
-        return response()->json(['deleted' => true]);
+
+        return $this->successResponse(null, 'Footer item deleted successfully');
     }
 }
