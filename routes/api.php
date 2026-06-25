@@ -58,6 +58,8 @@ Route::get('team/setting', [\App\Http\Controllers\Api\Public\TeamController::cla
 Route::get('team-members', [\App\Http\Controllers\Api\Public\TeamController::class, 'index']);
 Route::get('team-members/{teamMember}', [\App\Http\Controllers\Api\Public\TeamController::class, 'show']);
 
+
+Route::get('HomeAboutInfo/all/about/home', [\App\Http\Controllers\Api\Admin\HomeAboutController::class, 'HomeAboutInfo']);
 Route::get('home/setting', [\App\Http\Controllers\Api\Public\HomeSettingController::class, 'show']);
 Route::get('home/sections', [\App\Http\Controllers\Api\Public\HomeSectionController::class, 'index']);
 Route::get('home/sections/{section}', [\App\Http\Controllers\Api\Public\HomeSectionController::class, 'show']);
